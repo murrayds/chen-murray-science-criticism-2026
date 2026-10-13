@@ -12,15 +12,3 @@ To run the code, you will need to complete the following steps:
 4. In the CLI, navigate to the `workflow/` directory. To execute the code, run `make results`, which will install the necessary conda environments and execute the snakemake workflow, processing any data necessary to create the result figures. The output will be saved in the `fig_path` that was set in the `config.yml` file.
     * Note that is you are running on an apple computer with an M1 chip, you may encounter an issue when the workflow attempts to install `r-matchit`, which is not currently built for the arm64 architecture. The solutions to this include look at each .yaml file in the `workflow/envs` directory and install these into a single conda environment, and through R use the `install.packages("matchit")` command to install it yourself through the CRAN package management system. Once the new environment is activated, use the command `snakemake -j 4 results --rerun-triggers mtime` in the `workflow/` directory to execure the code.
     * If the workflow attempts to download files from BigQuery (which will raise an error unless you are setup with access), or if it attepts to execute the novelty subworkflow (which will take a very very long time), then this means that the files are out of date and snakemake feels the need to update them. To resolve this, use the command `touch <path-to-project>/science_criticism/data/downloaded/*` and `touch <path-to-project>/science_criticism/data/derived/matched/*`, which will update their timestamps. Then re-run the workflow.
-
-
-## Citation
-
-```bibtex
-@misc{chen2024criticism,
-  Author = {Bingsheng Chen and Dakota Murray and Yixuan Liu and Albert-László Barabási},
-  Title = {Criticism in science targets highly cited papers but has limited consequence and reach},
-  Year = {2024},
-  Eprint = {arXiv:2412.02809},
-}
-```
