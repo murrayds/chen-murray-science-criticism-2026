@@ -1,0 +1,7 @@
+# Environment for the submission rules that write Excel and LaTeX files (rules/Submission.smk)
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pandas
+  - openpyxl

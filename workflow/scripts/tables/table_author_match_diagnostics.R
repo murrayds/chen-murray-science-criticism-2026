@@ -1,0 +1,135 @@
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(tidyr))
+library(readr)
+library(xtable)
+
+source("scripts/common.R")
+source(snakemake@config[["venues_file"]])
+
+agg <- read_csv(snakemake@input[[1]], col_types = cols())
+
+mutate_counts_table <- function(df) {
+  df %>%
+    select(
+      venue, count_candidates, num_matched, authorship, impact, productivity
+    ) %>%
+    rowwise() %>%
+    mutate(
+      value = paste0(
+        num_matched,
+        " (",
+        round(num_matched / count_candidates * 100, 1),
+        "%)"
+      )
+    ) %>%
+    select(-count_candidates, -num_matched)
+}
+
+
+mutate_tstats_table <- function(df) {
+  df %>%
+    select(venue, t.statistic, t.p.value, authorship, impact, productivity) %>%
+    rowwise() %>%
+    mutate(
+      value = paste0(
+        round(t.statistic, 2),
+        " (p=",
+        formatC(round(t.p.value, 3), format = "f", digits = 3),
+        ")"
+      )
+    ) %>%
+    select(-t.statistic, -t.p.value)
+}
+
+mutate_wilcox_table <- function(df) {
+  df %>%
+    select(venue, wilcox.p.value, authorship, impact, productivity) %>%
+    rowwise() %>%
+    mutate(
+      value = paste0(
+        "p=",
+        formatC(round(wilcox.p.value, 3), format = "f", digits = 3)
+      )
+    ) %>%
+    select(-wilcox.p.value)
+}
+
+# First, lets perform some formatting on the table
+agg_formatted <- agg %>%
+  mutate(
+    venue = factor(venue, levels = venue_levels())
+  ) %>%
+  filter(!is.na(venue))
+
+param <- snakemake@wildcards[[1]]
+if (param == "counts") {
+  agg_formatted <- agg_formatted %>% mutate_counts_table()
+} else if (param == "tstats") {
+  agg_formatted <- agg_formatted %>% mutate_tstats_table()
+} else if (param == "wilcox") {
+  agg_formatted <- agg_formatted %>% mutate_wilcox_table()
+}
+
+agg_formatted <- agg_formatted %>%
+  pivot_wider(names_from = venue, values_from = value) %>%
+  select(authorship, impact, productivity, venue_levels())
+
+# Baseline tolerances, matching those used in the matched author comparison
+baseline_impact <- 0.15
+baseline_productivity <- 0.15
+
+# We will narrow the table into three separate pieces, and
+# for each we will vary only a single parameter.
+cite_tolerance_table <- agg_formatted %>%
+  filter(productivity == baseline_productivity)
+cite_tolerance_table[nrow(cite_tolerance_table) + 1, ] <- NA
+
+productivity_tolerance_table <- agg_formatted %>%
+  filter(impact == baseline_impact)
+productivity_tolerance_table[nrow(productivity_tolerance_table) + 1, ] <- NA
+
+# Aggregate mini tables, perform final polish
+tab <- data.table::rbindlist(
+  list(cite_tolerance_table, productivity_tolerance_table)
+) %>%
+  mutate(
+    impact = ifelse(is.na(impact), NA, paste0(impact * 100, "%")),
+    productivity = ifelse(
+      is.na(productivity),
+      NA,
+      paste0(productivity * 100, "%")
+    )
+  ) %>%
+  rename(
+    `Authorship` = `authorship`,
+    `Impact $\\pm$ $\\epsilon$` = impact,
+    `Productivity $\\pm$ $\\epsilon$` = productivity
+  )
+
+align_str <- paste0(
+  "clll",
+  paste0(
+    rep(
+      "l",
+      length(venue_levels())
+    ),
+    collapse = ""
+  ),
+  collapse = ""
+)
+
+# Construct the table
+latex_table <- xtable(
+  tab,
+  align = align_str,
+  digits = 0,
+)
+
+# Output to a file
+print(
+  latex_table,
+  include.rownames = FALSE,
+  booktabs = TRUE,
+  sanitize.colnames.function = function(x) { x },
+  file = snakemake@output[[1]]
+)

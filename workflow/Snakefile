@@ -1,0 +1,291 @@
+from os.path import join as j
+
+from workflow_helpers import get_novelty_null_iters, get_novelty_years, get_venues
+
+# Use a config file
+#configfile: "config_supplement.yaml"
+
+RAW_DIR = config["raw_dir"]
+DL_DIR = j(config["data_dir"], "downloaded")
+DERIVED_DIR = j(config["data_dir"], "derived")
+FIG_DIR = j(config["fig_dir"], "figs")
+
+LETTER_IDS = j(RAW_DIR, "{venue}_letter_links.csv")
+FIELD_HIERARCHY = j(RAW_DIR, "mag_field_hierarchy.csv")
+LETTER_METADATA = j(DL_DIR, "{venue}", "{venue}_letter_metadata.csv")
+PAPER_IMPACT = j(DL_DIR, "{venue}", "{venue}_paper_impact.csv")
+PAPER_FIELDS = j(DL_DIR, "{venue}", "{venue}_fields.csv")
+DUAL_CITE_TRAJECTORIES = j(DL_DIR, "{venue}", "{venue}_dual_cite_trajectories.csv"),
+SCITE_METRICS = j(DL_DIR, "{venue}", "{venue}_scite_metrics.csv")
+
+ELITE_UNIVERSITIES = j(RAW_DIR, "elite_university_list.csv")
+
+SCISCINET_FEATURES = j(DL_DIR, "sciscinet_features.csv")
+
+JOURNAL_REFS = j(DL_DIR, "journal_refs", "journal_refs_{year}.csv")
+TARGET_JOURNAL_REFS = j(DL_DIR, "journal_refs", "target_journal_refs.csv")
+PAPER_FIELD_REFS = j(DL_DIR, "paper_field_refs.csv")
+PAPER_FIELD_CITES = j(DL_DIR, "paper_field_cites.csv")
+CAREER_HISTORIES = j(DL_DIR, "career_histories.csv")
+AUTHOR_PROFILES = j(DL_DIR, "author_profiles.csv")
+CITING_PAPER_TITLES = j(DL_DIR, "citing_{venue}_paper_titles.csv")
+
+AGG_LETTERS = j(DERIVED_DIR, "agg", "agg_letters.csv")
+AGG_NONLETTERS = j(DERIVED_DIR, "agg", "agg_nonletters.csv")
+AGG_FIELDS = j(DERIVED_DIR, "agg", "agg_fields.csv")
+AGG_DUAL_CITE_TRAJECTORIES = j(DERIVED_DIR, "agg", "agg_dual_cite_trajectories.csv")
+AGG_PAPER_TITLES = j(DERIVED_DIR, "agg", "agg_paper_titles.csv")
+AGG_SCITE_METRICS = j(DERIVED_DIR, "agg", "agg_scite_metrics.csv")
+
+OBSERVED_JOURNAL_COOCCURENCE_COUNTS = j(DERIVED_DIR, "novelty", "observed", "observed_journal_cooccurence_counts_{year}.pickle")
+NULL_JOURNAL_COOCCURENCE_COUNTS = j(DERIVED_DIR, "novelty", "null", "null_journal_cooccurence_counts_{year}_iter{iter}.pickle")
+
+AGG_OBSERVED_JOURNAL_COOCCURENCE_COUNTS = j(DERIVED_DIR, "novelty", "observed", "agg_observed_journal_cooccurence_counts.pickle")
+AGG_NULL_JOURNAL_COOCCURENCE_COUNTS = j(DERIVED_DIR, "novelty", "null", "agg_null_journal_cooccurence_counts_iter{iter}.pickle")
+NOVELTY_ZSCORES = j(DERIVED_DIR, "novelty", "journal_zscores_{year}.pickle")
+AGG_NOVELTY_ZSCORES = j(DERIVED_DIR, "novelty", "agg_journal_zscores.pickle")
+PAPER_NOVELTY_SCORES = j(DERIVED_DIR, "novelty", "paper_zscores.csv")
+
+TITLE_EMBEDDING_SIMILARITIES = j(DERIVED_DIR, "embedding", "{venue}_title_embedding_similarities.csv")
+AGG_TITLE_EMBEDDING_SIMILARITIES = j(DERIVED_DIR, "embedding", "agg_title_embedding_similarities.csv")
+
+COUNTS_TABLE = j(FIG_DIR, "tables", "counts_table.txt")
+
+MATCHED_PAPERS_FOR_METRIC_DENSITY_COMPARISON = j(DERIVED_DIR, "matched", "matched_papers_metricdensity_{cite_tolerance}impact_{year_tolerance}year.csv")
+
+_MATCHED_PAPERS_FOR_IMPACT_COMPARISON_SPLIT = j(DERIVED_DIR, "matched", "_{venue}_matched_papers_stage1_{delay}delay_{cite_tolerance}impact_{year_tolerance}year.csv")
+MATCHED_PAPERS_FOR_IMPACT_COMPARISON = j(DERIVED_DIR, "matched", "matched_papers_stage1_{delay}delay_{cite_tolerance}impact_{year_tolerance}year.csv")
+AGG_PAPER_IMPACT_MATCHED_DIAGNOSTICS = j(DERIVED_DIR, "matched", "agg_paper_impact_match_diagnostics.csv")
+
+_MATCHED_AUTHORS_SPLIT = j(DERIVED_DIR, "matched", "_{venue}_matched_{authorship}_authors_{cite_tolerance}impact_{prod_tolerance}prod.csv")
+MATCHED_AUTHORS = j(DERIVED_DIR, "matched", "matched_{authorship}_authors_{cite_tolerance}impact_{prod_tolerance}prod.csv")
+AGG_AUTHOR_MATCHED_DIAGNOSTICS = j(DERIVED_DIR, "matched", "agg_author_match_{metric}_diagnostics.csv")
+
+AUTHOR_MARGINAL_PROBABILITIES = j(DERIVED_DIR, "margins", "margins_{authorship}author.csv")
+
+IMPACT_RANK_HISTOGRAM = j(FIG_DIR, "impact_rank_histogram.png")
+IMPACT_RANK_HISTOGRAM_PLOTDATA = j(FIG_DIR, "plotdata", "impact_rank_histogram_plotdata.csv")
+IMPACT_LIKELIHOOD_SCATTER = j(FIG_DIR, "impact_likelihood_scatter.png")
+IMPACT_LIKELIHOOD_SCATTER_PLOTDATA = j(FIG_DIR, "plotdata", "impact_likelihood_scatter_plotdata.csv")
+
+PAPER_METRICS_DENSITY_PLOT = j(FIG_DIR, "paper_metrics_density.png")
+PAPER_METRICS_DENSITY_PLOT_PLOTDATA = j(FIG_DIR, "plotdata", "paper_metrics_density_plotdata.csv")
+PAPER_METRICS_DENSITY_PLOT_TEST_1SAMPLE_TABLE = j(FIG_DIR, "tables", "paper_metrics_density_test_1sample_table.txt")
+PAPER_METRICS_DENSITY_PLOT_TEST_2SAMPLE_TABLE = j(FIG_DIR, "tables", "paper_metrics_density_test_2sample_table.txt")
+
+FIT_BY_VENUE_TABLE = j(FIG_DIR, "tables", "fit_by_venue.txt")
+
+PAPER_IMPACT_COMPARISON_PLOTDATA = j(FIG_DIR, "plotdata", "paper_impact_comparison_plotdata.csv")
+AUTHOR_COMPARISON_PLOTDATA = j(FIG_DIR, "plotdata", "{authorship}-author_{metric}_comparison_authors.csv")
+MATCHED_COMPARISON_PLOT = j(FIG_DIR, "matched_comparison_plot.png")
+MATCHED_COMPARISON_PLOT_PLOTDATA = j(FIG_DIR, "plotdata", "matched_comparison_plot_plotdata.csv")
+
+PAPER_COMPARISON_LAGTYPE_PLOT = j(FIG_DIR, "matched_comparison_lagtype_plot.png")
+PAPER_COMPARISON_LAGTYPE_PLOT_PLOTDATA = j(FIG_DIR, "plotdata", "matched_comparison_lagtype_plot_plotdata.csv")
+
+FIELD_REPRESENTATION_PLOT = j(FIG_DIR, "field_representation_plot.png")
+FIELD_REPRESENTATION_PLOT_PLOTDATA = j(FIG_DIR, "plotdata", "field_representation_plot_plotdata.csv")
+
+MATCHING_DIAGNOSTIC_IMPACT_PLOT = j(FIG_DIR, "diagnostics", "matching_diagnostic_impact_plot.png")
+MATCHING_DIAGNOSTIC_IMPACT_PLOT_PLOTDATA = j(FIG_DIR, "plotdata", "diagnostics", "matching_diagnostic_impact_plot_plotdata.csv")
+
+PAPER_IMPACT_MATCH_DIAGNOSTICS_TABLE = j(FIG_DIR, "tables", "match_papers_{diagnostic}_parameters.txt")
+AUTHOR_MATCH_DIAGNOSTICS_TABLE = j(FIG_DIR, "tables", "match_authors_{diagnostic}_{metric}_parameters.txt")
+
+IMPACT_TEMPORAL_COMPARISON = j(FIG_DIR, "impact_temporal_comparison.png")
+IMPACT_TEMPORAL_COMPARISON_PLOTDATA = j(FIG_DIR, "plotdata", "impact_temporal_comparison_plotdata.csv")
+
+PAPER_AUTHOR_DEMOGRAPHIC_AME = j(FIG_DIR, "paper_{authorship}author_demographic_ame.png")
+PAPER_AUTHOR_DEMOGRAPHIC_AME_PLOTDATA = j(FIG_DIR, "plotdata", "paper_{authorship}author_demographic_ame_plotdata.csv")
+
+PAPER_TWEET_DISTRIBUTION = j(FIG_DIR, "paper_tweet_distribution.png")
+PAPER_TWEET_DISTRIBUTION_PLOTDATA = j(FIG_DIR, "plotdata", "paper_tweet_distribution_plotdata.csv")
+PAPER_NEWS_TWEET_PROPORTION = j(FIG_DIR, "paper_news_tweet_proportion.png")
+PAPER_NEWS_TWEET_PROPORTION_PLOTDATA = j(FIG_DIR, "plotdata", "paper_news_tweet_proportion_plotdata.csv")
+
+EMBEDDING_COCITE_DENSITY_PLOT = j(FIG_DIR, "embedding_cocite_density_plot.png")
+EMBEDDING_COCITE_DENSITY_PLOT_PLOTDATA = j(FIG_DIR, "plotdata", "embedding_cocite_density_plot_plotdata.csv")
+EMBEDDING_COCITE_DENSITY_PLOT_TESTS_TABLE = j(FIG_DIR, "tables", "embedding_cocite_density_tests_table.txt")
+
+LETTER_ALTMETRIC_COMPARISON_PLOT = j(FIG_DIR, "letter_altmetric_comparison.png")
+LETTER_ALTMETRIC_COMPARISON_PLOT_PLOTDATA = j(FIG_DIR, "plotdata", "letter_altmetric_comparison_plotdata.csv")
+
+AUTHOR_MATCH_QUALITY_TABLE = j(FIG_DIR, "diagnostics", "{authorship}-author_matching_quality_table.txt")
+
+####################
+# SUPPLEMENTAL ANALYSIS
+####################
+LLM_ANNOTATIONS = j(RAW_DIR, "letter_llm_annotated_data.csv")
+PAPER_IMPACT_COMPARISON_PLOTDATA_FILTERED = j(FIG_DIR, "supplemental", "paper_impact_comparison_filtered_plotdata.csv")
+
+####################
+# INCLUDES
+####################
+include: "rules/Download.smk"
+include: "rules/Novelty.smk"
+include: "rules/Process.smk"
+include: "rules/Match.smk"
+include: "rules/Results.smk"
+include: "rules/Results_supplement.smk"
+
+####################
+# PARAMETERS
+####################
+VENUES = get_venues(config)
+
+# Maybe I can store these in a config file instead...?
+IMPACT_DELAY = config["matching"]["impact_delay"]
+CITE_TOLERANCE = config["matching"]["cite_tolerance"]
+YEAR_TOLERANCE = config["matching"]["year_tolerance"]
+PRODUCTIVITY_TOLERANCE = config["matching"]["productivity_tolerance"]
+
+DIAGNOSTICS = ["counts", "tstats"]
+
+YEARS_OF_STUDY = get_novelty_years(config)
+NULL_ITERS = get_novelty_null_iters(config)
+
+AUTHORSHIP = config["matching"]["authorship"]
+AUTHOR_METRICS = ["prod", "citations"]
+
+rule all:
+    input:
+       
+
+rule download:
+    input:
+        expand(LETTER_METADATA, venue = VENUES),
+        expand(PAPER_IMPACT, venue = VENUES),
+        expand(PAPER_FIELDS, venue = VENUES),
+        expand(DUAL_CITE_TRAJECTORIES, venue = VENUES),
+        expand(SCITE_METRICS, venue = VENUES),
+        TARGET_JOURNAL_REFS,
+        CAREER_HISTORIES,
+        PAPER_FIELD_REFS,
+        PAPER_FIELD_CITES,
+        AGG_LETTERS,
+        AGG_NONLETTERS,
+        AGG_FIELDS,
+        AGG_DUAL_CITE_TRAJECTORIES,
+        AUTHOR_PROFILES,
+        SCISCINET_FEATURES,
+        expand(CITING_PAPER_TITLES, venue = VENUES),
+        AGG_PAPER_TITLES,
+        AGG_SCITE_METRICS
+        
+
+rule novelty:
+    input:
+        expand(JOURNAL_REFS, year=YEARS_OF_STUDY),
+        expand(OBSERVED_JOURNAL_COOCCURENCE_COUNTS, year=YEARS_OF_STUDY),
+        expand(NULL_JOURNAL_COOCCURENCE_COUNTS, year=YEARS_OF_STUDY, iter=NULL_ITERS),
+        expand(NOVELTY_ZSCORES, year = YEARS_OF_STUDY),
+        AGG_NOVELTY_ZSCORES
+
+rule match:
+    input:
+        expand(
+            MATCHED_PAPERS_FOR_IMPACT_COMPARISON,
+            delay = config["matching"]["impact_delay"],
+            cite_tolerance = config["matching"]["cite_tolerance"],
+            year_tolerance = YEAR_TOLERANCE
+        ),
+        expand(
+            MATCHED_PAPERS_FOR_METRIC_DENSITY_COMPARISON,
+            cite_tolerance = 0.05,
+            year_tolerance = 3,
+        ),
+        expand(
+            MATCHED_AUTHORS,
+            authorship = AUTHORSHIP,
+            cite_tolerance = config["matching"]["cite_tolerance"],
+            prod_tolerance = config["matching"]["productivity_tolerance"]
+        ),
+        AGG_PAPER_IMPACT_MATCHED_DIAGNOSTICS,
+        expand(AGG_AUTHOR_MATCHED_DIAGNOSTICS, metric = AUTHOR_METRICS)
+        
+
+rule margins:
+    input:
+        expand(AUTHOR_MARGINAL_PROBABILITIES, authorship = AUTHORSHIP)
+
+rule embedding: 
+    input:
+        expand(TITLE_EMBEDDING_SIMILARITIES, venue = VENUES),
+        AGG_TITLE_EMBEDDING_SIMILARITIES
+
+rule results:
+    input:
+        IMPACT_RANK_HISTOGRAM,
+        IMPACT_LIKELIHOOD_SCATTER,
+        PAPER_METRICS_DENSITY_PLOT,
+        PAPER_METRICS_DENSITY_PLOT_TEST_1SAMPLE_TABLE,
+        PAPER_METRICS_DENSITY_PLOT_TEST_2SAMPLE_TABLE,
+        PAPER_IMPACT_COMPARISON_PLOTDATA,
+        FIT_BY_VENUE_TABLE,
+        MATCHING_DIAGNOSTIC_IMPACT_PLOT,
+        FIELD_REPRESENTATION_PLOT,
+        expand(
+            AUTHOR_COMPARISON_PLOTDATA,
+            metric = AUTHOR_METRICS,
+            authorship = AUTHORSHIP
+        ),
+        MATCHED_COMPARISON_PLOT,
+        PAPER_COMPARISON_LAGTYPE_PLOT,
+        IMPACT_TEMPORAL_COMPARISON,
+        expand(
+            PAPER_AUTHOR_DEMOGRAPHIC_AME,
+            authorship = AUTHORSHIP
+        ),
+        PAPER_TWEET_DISTRIBUTION,
+        PAPER_NEWS_TWEET_PROPORTION,
+        EMBEDDING_COCITE_DENSITY_PLOT,
+        EMBEDDING_COCITE_DENSITY_PLOT_TESTS_TABLE,
+        LETTER_ALTMETRIC_COMPARISON_PLOT,
+        COUNTS_TABLE,
+        expand(PAPER_IMPACT_MATCH_DIAGNOSTICS_TABLE, diagnostic=DIAGNOSTICS),
+        expand(AUTHOR_MATCH_DIAGNOSTICS_TABLE, diagnostic=DIAGNOSTICS, metric=AUTHOR_METRICS),
+        expand(AUTHOR_MATCH_QUALITY_TABLE, authorship=AUTHORSHIP),
+        PAPER_IMPACT_COMPARISON_PLOTDATA_FILTERED,
+        # Source data underlying each figure
+        IMPACT_RANK_HISTOGRAM_PLOTDATA,
+        IMPACT_LIKELIHOOD_SCATTER_PLOTDATA,
+        PAPER_METRICS_DENSITY_PLOT_PLOTDATA,
+        MATCHED_COMPARISON_PLOT_PLOTDATA,
+        PAPER_COMPARISON_LAGTYPE_PLOT_PLOTDATA,
+        FIELD_REPRESENTATION_PLOT_PLOTDATA,
+        MATCHING_DIAGNOSTIC_IMPACT_PLOT_PLOTDATA,
+        IMPACT_TEMPORAL_COMPARISON_PLOTDATA,
+        expand(
+            PAPER_AUTHOR_DEMOGRAPHIC_AME_PLOTDATA,
+            authorship = AUTHORSHIP
+        ),
+        PAPER_TWEET_DISTRIBUTION_PLOTDATA,
+        PAPER_NEWS_TWEET_PROPORTION_PLOTDATA,
+        EMBEDDING_COCITE_DENSITY_PLOT_PLOTDATA,
+        LETTER_ALTMETRIC_COMPARISON_PLOT_PLOTDATA
+
+####################
+# STATISTICS AND SUBMISSION FILES
+# Included last because these rules refer to the target rules above. Run with
+# the main configuration after the supplementary results have been computed.
+####################
+include: "rules/Submission.smk"
+
+rule stats:
+    input:
+        TEST_STATISTICS,
+        BAYES_FACTORS_ALL
+
+rule submission:
+    input:
+        TEST_STATISTICS,
+        BAYES_FACTORS_ALL,
+        SI_TABLES,
+        MAIN_FIGURE_PDFS,
+        SOURCE_DATA,
+        FIGURE_SOURCE_DATA_CSVS
+
+rule export:
+    input:
+        DATA_EXPORT,
+        DATA_MANIFEST

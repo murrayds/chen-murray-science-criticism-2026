@@ -1,0 +1,26 @@
+# set the directories below and copy this file as `config.yaml`
+data_dir: "..."
+fig_dir: "..."
+venues:
+  "Nature": 137773608
+  "Science": 3880285
+  "PNAS": 125754415
+  "PRL": 24807848
+  "Geology": 56162041
+  "NEJM": 62468778
+bigquery:
+  mag_path: "..."
+  aps_path: "..."
+  temp_path: "..."
+processing:
+  minimum_references_for_target: 5
+novelty:
+  iterations: 10
+  start_year: 2000
+  end_year: 2020
+matching:
+  impact_delay: [3]
+  cite_tolerance: [0.05, 0.1]
+  year_tolerance: [2]
+  productivity_tolerance: [0.1]
+  authorship: ["first", "last"]

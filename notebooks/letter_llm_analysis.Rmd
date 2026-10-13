@@ -1,0 +1,88 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Load the LLM annotations
+```{r}
+library(tidyverse)
+df <- read_csv("/Users/d.murray/Documents/science_criticism/data/raw/letter_llm_annotated_data.csv")
+head(df)
+```
+
+First, lets process a version of the file that is mapped to letter IDs
+```{r}
+df_doi_only <- df %>%
+  select(doi)
+
+write_csv(df_doi_only, "/Users/d.murray/Documents/science_criticism/notebooks/annotations_doi_only.csv")
+
+
+doi_links <- read_csv("/Users/d.murray/Documents/science_criticism/notebooks/annotation_doi_to_id.csv")
+doi_links
+
+agg_letters <- read_csv("/Users/d.murray/Documents/science_criticism/data/derived/agg/agg_letters.csv")
+
+df_with_links <- df %>%
+  left_join(doi_links, by = "doi") %>%
+  left_join(agg_letters %>% select(letter_id, original_id), by = c("PaperId" = "letter_id")) %>%
+  rename(letter_id = PaperId)
+
+write_csv(df_with_links, "/Users/d.murray/Documents/science_criticism/data/raw/letter_llm_annotated_data.csv")
+```
+
+Show the values of validity and interest produced by the model
+```{r}
+
+df %>%
+  filter(journal %in% c("Nature", "Science", "PNAS")) %>%
+  mutate(
+    Interest = ifelse(is_critical_bool == "No", "Low", Interest)
+  ) %>%
+  group_by(journal) %>%
+  summarize(
+    num = n(),
+    num_valid = sum(is_critical_bool == "Yes"),
+    prop_valid = round(sum(is_critical_bool == "Yes") / n() * 100, 2),
+    num_interest = sum(Interest == "High"),
+    prop_interest = round(sum(Interest == "High") / sum(is_critical_bool == "Yes") * 100, 2)
+  )
+```
+
+Compare the manual annotations conducted previously against the LLM-based annotations used now
+```{r}
+library(readxl)
+annotations <- read_excel("/Users/d.murray/Documents/science_criticism/data/raw/critical-letter_annotations.xlsx")
+
+
+annotations %>%
+  mutate(doi = tolower(gsub("https://doi.org/", "", doi, fixed = T))) %>%
+  inner_join(df %>% mutate(doi = tolower(doi)) %>% select(doi, is_critical_bool), by = "doi") %>%
+  group_by(journal) %>%
+  summarize(
+    num = n(),
+    agreement = sum(is_valid & is_critical_bool == "Yes") 
+  )
+
+```
+
+
+Construct a validation sample
+
+```{r}
+validation_sample <- df %>%
+  filter(journal %in% c("Nature", "Science", "PNAS")) %>%
+  group_by(journal) %>%
+  sample_n(10) 
+
+
+validation_sample
+
+# write_csv(validation_sample, file = "~/...")
+
+# for checking results
+validation_sample_key <- validation_sample %>%
+  left_join(df %>% select(doi, is_critical_bool, Interest), by = "doi")
+
+write_csv(validation_sample_key, "/Users/d.murray/Documents/science_criticism/notebooks/validation_sample_key.csv")
+```

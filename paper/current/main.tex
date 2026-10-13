@@ -1,0 +1,843 @@
+
+\documentclass[12pt,a4paper]{article}
+\usepackage[left=1cm,right=1cm,top=2cm,bottom=2cm,nohead,nofoot]{geometry}
+\setlength{\marginparwidth}{2cm} 
+\usepackage{amsmath,amssymb}
+\numberwithin{equation}{section}
+\usepackage{hyperref}
+\usepackage{graphicx}% Include figure files
+\usepackage{booktabs}
+\usepackage{color,soul}
+\usepackage[utf8]{inputenc}
+\usepackage{multirow}
+\usepackage{authblk}
+\usepackage{lscape}
+\paperwidth=\dimexpr \paperwidth + 7cm\relax
+\oddsidemargin=\dimexpr\oddsidemargin + 3cm\relax
+\evensidemargin=\dimexpr\evensidemargin + 3cm\relax
+\marginparwidth=\dimexpr \marginparwidth + 3cm\relax
+
+
+\usepackage[font=small,labelfont=bf,singlelinecheck=off]{caption}
+
+
+\usepackage[
+    backend=biber,
+    sortcites=true,
+    style=nature,
+    maxbibnames=99,
+    %sorting=ynt
+]{biblatex}
+
+\addbibresource{ref.bib}
+
+% Ignore irrelevant biblatex fields
+\AtEveryBibitem{%
+ \clearfield{url}%
+ \clearfield{urlyear}%
+ \clearfield{langid}%
+ \clearfield{month}%
+ \clearfield{day}%
+ \clearfield{issn}%
+ \clearfield{isbn}%
+ \clearfield{doi}%%
+ \clearfield{pagetotal}%%
+ \clearfield{ISSN}%%
+ \clearfield{tex.ids}%%
+ \clearfield{note}%%
+ \clearfield{eprinttype}%
+ \clearfield{eprint}
+ \clearlist{language}%
+ \clearfield{language}%
+ \clearlist{editor}%
+ \clearfield{editor}%
+}
+
+
+
+
+%------------Begin helper code--------------
+% From https://www.overleaf.com/learn/how-to/Cross_referencing_with_the_xr_package_in_Overleaf#How_to_use_xr_on_Overleaf
+%\usepackage{xr}
+\usepackage{xr} 
+\makeatletter
+\newcommand*{\addFileDependency}[1]{% argument=file name and extension
+\typeout{(#1)}% latexmk will find this if $recorder=0
+% however, in that case, it will ignore #1 if it is a .aux or 
+% .pdf file etc and it exists! If it doesn't exist, it will appear 
+% in the list of dependents regardless)
+%
+% Write the following if you want it to appear in \listfiles 
+% --- although not really necessary and latexmk doesn't use this
+%
+\@addtofilelist{#1}
+%
+% latexmk will find this message if #1 doesn't exist (yet)
+\IfFileExists{#1}{}{\typeout{No file #1.}}
+}\makeatother
+
+\newcommand*{\myexternaldocument}[1]{%
+\externaldocument{#1}%
+\addFileDependency{#1.tex}%
+\addFileDependency{#1.aux}%
+}
+%------------End of helper code--------------
+
+% NOTE: TO UPLOAD THIS TO JOURNAL SUBMISSION
+% - generate the manuscript file as normal
+% - Locate the supp.aux file, and copy its contexts above the \documentclass begin statement, encloding it in a `\begin{filecontents}{supp.aux}` directive
+% comment out the `\addFileDependency{#1.tex}` in the above
+% Recompile to make sure everything is working
+\myexternaldocument{supp}
+
+
+
+\usepackage[colorinlistoftodos, textwidth=36mm, textsize=singlespacetiny, shadow]{todonotes}
+\usepackage{marvosym}
+
+\newcommand{\singlespacetiny}{\linespread{1}\small}
+
+% Make double-spaced
+\usepackage{setspace}
+\doublespacing
+
+
+% VARIABLES
+\def\methods{Methods}
+\def\appendix{Supplementary Information}
+
+
+
+\newcommand{\beginsupplement}{%
+        \setcounter{table}{0}
+        \renewcommand{\thetable}{S\arabic{table}}%
+        \setcounter{figure}{0}
+        \renewcommand{\thefigure}{S\arabic{figure}}%
+     }
+
+
+
+
+\begin{document}
+
+\title{Criticism in science targets highly cited papers but has limited consequence and reach}
+
+\author[\Yinyang ,a]{Bingsheng Chen}
+\author[\Yinyang ,b]{Dakota Murray}
+\author[a]{Yixuan Liu}
+\author[a,c,d]{Albert-L\'{a}szl\'{o}  Barab\'{a}si }
+\affil[a]{Network Science Institute, Northeastern University, Boston, MA, 02115}
+\affil[b]{Department of Information Science and Technology, University at Albany, State University of New York, Albany, NY, 12222}
+\affil[c]{Department of Medicine, Brigham and Women’s Hospital, Harvard Medical School, Boston, MA, 02115}
+\affil[d]{Department of Network and Data Science, Central European University, Budapest 1051, Hungary}
+\affil[\Yinyang]{Authors contributed equally to this work}
+
+%\listoftodos
+
+\maketitle
+
+\textbf{Summary:} Criticism is seen as central to science, yet its targets and effects are rarely measured. Here, the authors show that critical letters target highly cited papers, have no clear effect on their citations, and are cited mostly within the same field.
+
+\clearpage
+\begin{abstract} 
+%149 words
+Criticism is considered essential to scientific progress, yet little is known about which papers attract it, its consequences, and its visibility.
+Here we show, we analyze over 2,700 published critiques (``critical letters'') from Nature, Science, the Proceedings of the National Academy of Sciences, and Physical Review journals, and show that criticism is concentrated among each journal's most highly cited papers.
+Criticized papers are also relatively more interdisciplinary (citing a broader mix of fields) and  novel (citing unusual combinations of journals).
+Receiving a critical letter has little detectable effect on a paper's consequent citations or on its authors' later productivity (number of papers, adjusted for co-authorship) and citations received.
+Critical letters receive only a small fraction of the citations of the papers they target, and are cited mainly by researchers working on closely related topics.
+This suggests that published criticism reaches narrow audiences, limiting its capacity to shape scientific discourse.
+\end{abstract}
+
+    
+\section*{Introduction}
+% Establish criticism as important
+Constructive criticism between peers is viewed as essential to the functioning and flourishing of the scientific process.
+It drives scientists to pursue new avenues of research, reconcile conflicting worldviews, remedy errors and biases, and can even lay the foundation for revolutionary new theories~\cite{decruz_2013_value,bastian2014stronger}. 
+It defines key episodes in the history of science such as the Galileo affair~\cite{feyerabend_1975_against}, Einstein’s and Bohr’s divergence over quantum theory~\cite{kumar_2010_quantum}, and the taxonomic classification of \textit{Homo floresiensis}~\cite{decruz_2013_value}.
+Epistemological theories of science consistently emphasize the central role of criticism across different stages of the scientific process, often using terms such as dissent, controversy, disagreement, or debate~\cite{merton1942science, kitcher_advancement_1993,latour_science_1988,popper_logic_1959}.
+Robert Merton's norms of science articulate an idealized ethos that, according to Merton, distinguishes science from other social institutions~\cite{merton1942science}.
+Criticism exemplifies the norm of organized skepticism, which obliges the scientific community to subject all claims to rigorous scrutiny.
+In light of the perceived benefits of criticism, some scholars have advocated for the broader adoption and formalization of critical practices in science, including post-publication peer review~\cite{bastian2014stronger,winker2015promise}.
+
+
+Despite its reputation as both vital and ubiquitous to science, there is little empirical evidence documenting the origins and effects of scientific criticism.
+Much of the existing research has instead examined criticism as the intersection of science and the public~\cite{oreskes_2010_merchants, deroover_2022_experts, lewandowsky_2012_consensus}, and not criticism within the scientific community.
+Existing studies on criticism in science have focused on cataloging its incidence and the presence of debate in published texts, often through analyses of in-text citations~\cite{lamers_2021_disagreement,catalini_2015_negative} or literature surveys~\cite{cook_2013_quantifying}.
+In regards to papers, such work has observed that criticism is disproportionately leveled against those with the most citations~\cite{catalini_2015_negative,radicchi_2012_comment}.
+Outside of citation impact, however, not much is known about the distinguishing characteristics of papers targeted by criticism.
+In regards to careers, the consequences of criticism are only understood for its most severe consequences, retractions, which represent just a fraction of all criticism~\cite{azoulay_2017_scandal,peng2022retracted}.
+This lack of empirical research has practical implications for ongoing efforts to reform scholarly communication and practice, such as through increased use of post-publication peer review, replications, and retractions. 
+Such reforms require empirical evidence about how existing criticism mechanisms operate in practice: whether they reach relevant audiences, influence how challenged work is used, and whether writing them carries professional costs. 
+
+Many journals already host a form of post-publication peer review~\cite{hardwicke_2022_critique} under names such as ``Comment'', ``Letter to the Editor'', ``Technical note'', or ``Matters Arising'', which we collectively term ``critical letters''.
+These critical letters are formal implementations of organized skepticism, offering a structured venue for publicly challenging published claims.
+The unique qualities of critical letters---being public, explicit, and certified through review---make them an ideal dataset for the study of criticism in science. 
+
+The role of critical letters (and criticism more broadly) in science can be understood through the lens of Loet Leydesdorff's framework of science as a self-organizing communication system~\cite{leydesdorff2001sociological,leydesdorff2010communication} (see Supplementary Note 1).
+This framework posits different levels of communication.
+First-order communications are the primary substance of scientific discourse: empirical findings, theoretical claims, methodological innovations, and novel observations that advance knowledge within a field.
+Second-order communications are communications about these prior communications;
+they step back to assess, contextualize, challenge, or reinterpret what has already been communicated.
+Within this framework, criticism represents a form of reflexive meta-communication: it is a second-order communication that evaluates and potentially redirects future first-order communications.
+
+As reflexive communications, critical letters prompt researchers to re-evaluate targeted papers, potentially redirecting scholarly attention, changing how scholars engage with the cited paper.
+Leydesdorff's framework conceptualizes citations as a selection mechanism~\cite{leydesdorff2001sociological}: when scientists cite prior work, they select certain communications for amplification and reproduction, while others fade from discourse.
+Critical letters can intervene in this selection process by signaling peer disagreement and raising epistemic uncertainty around contested claims~\cite{christensen_2007_disagreement}.
+Notably, Leydesdorff's framework does not predict a single directional effect.
+Researchers encountering a critical letter may respond in several ways: contextualizing their citations by qualifying claims or noting contested status of the paper; scrutinizing it more closely and revealing limitations that affect decisions to build upon it; or declining to cite the work if criticism undermines its perceived validity.
+Criticism may also direct attention and discourse toward the targeted paper, reproducing it in future discourse, and driving increased citation.
+In each scenario, one could expect the citation trajectory to differ from the counterfactual in which no criticism was issued.
+Indeed, such changes have been observed for other reflexive communications, such as retractions~\cite{azoulay_2015_retractions} and failed replications~\cite{vonHippel2022replication,clark2023replicate}.
+Although citations represent only one observable indicator of these dynamics, they capture a crucial dimension: the extent to which publicly challenged claims continue to be selected as foundations for new research.
+
+The role that critical letters have in science can also provide insights into how communication in science operates. 
+Building from Merton's and Leydesdorff's frameworks, we identify three broad regimes of scholarly communication along a spectrum: idealized Mertonian, fragmented Mertonian, and non-Mertonian science (described further in the Discussion and \appendix).
+At one end of this spectrum lies idealized Mertonian science which represents an aspirational baseline rather than an expected reality of scientific practice. 
+As science grows increasingly complex and beyond the cognitive capacities of individual scientists~\cite{pan2018myopia}, the communication system of science tends to differentiate into smaller, specialized subsystems corresponding to distinct fields.
+These subsystems are fragmented, characterized by intensive communication within fields and limited exchange between.
+For instance, while idealized Mertonian science presents organized skepticism as a field-spanning norm, in practice it may operate more narrowly, mainly within disciplinary boundaries and seldom across them.
+We term this view fragmented Mertonian science.
+At the opposite end of the spectrum lies non-Mertonian science, which would represent a genuine departure from scientific ideals, such as the norms of universalism or disinterestedness.
+The incidence and consequence of critical letters differ across each of these regimes; tracing these differences can provide insights into the organization of scientific communication and its alignment with a Mertonian ethos. 
+
+Here, we show, using over 2,700 critical letters---short published critiques of a target paper---from Nature, Science, the Proceedings of the National Academy of Sciences, and Physical Review journals, that criticism is concentrated among each journal's most highly cited papers.
+Criticized papers are also relatively more interdisciplinary (citing a broader mix of fields, measured by the diversity of fields represented among a paper's references) and novel (citing unusual combinations of journals, measured by how atypical the pairs of journals co-cited in a paper's references are relative to chance).
+Receiving a critical letter has little detectable effect on a paper's consequent citations or on its authors' later productivity (number of papers, adjusted for co-authorship) or citations received.
+Critical letters receive only a small fraction of the citations of the papers they target, and are cited mainly by researchers working on closely related topics.
+Interpreted post hoc through Merton's norms and Leydesdorff's communication framework, these patterns are consistent with fragmented Mertonian science, in which scrutiny follows attention but published criticism reaches narrow audiences, limiting its capacity to shape scientific discourse.
+
+
+
+%
+% SECTION: 
+%
+\section*{Results}
+Critical letters are published with the explicit goal of critiquing recent work and provide an ideal case study of scientific criticism.
+Critical letters offer unique empirical advantages for studying organized skepticism at scale: they are explicit, certified through editorial review, and represent institutionalized implementations of criticism.
+Our study examines whether such criticism alters observable communication patterns and professional trajectories, capturing key dimensions of the role of criticism in science.
+
+Critical letters were sourced from several journals in which they are routinely published: Nature (the flagship journal only, not other Nature Portfolio journals), Science, Proceedings of the National Academy of Sciences (PNAS), Physical Review Letters (PRL), and Physical Review A through Physical Review E (collapsed into a single category labeled Other APS, unless otherwise noted).
+Other journals were examined, but ultimately excluded because their letters did not consistently present explicit criticism of original research (e.g., the New England Journal of Medicine and the Journal of the American Medical Association, whose letters mostly comment on broader issues), because differences in editorial practice and disciplinary culture would complicate comparison (e.g., Geology, the Journal of Chemical Physics, and Water Resource Management; three such journals are analyzed separately in the \appendix), or because they published too few letters for robust analysis (see Supplementary Note 2).
+After pre-processing and exclusions, our corpus comprises 2,753 critical letters targeting 2,668 papers: 179 letters and 179 targeted papers published between 2002 and 2018 in Nature, 398 letters and 396 targeted papers published between 2001 and 2019 in Science, 510 letters and 513 targeted papers published between 2007 and 2019 in PNAS, and 1,666 letters and 1,580 targeted papers published between 2000 and 2019 in PRL and the other Physical Review journals (see \methods).
+Note that in some cases, multiple critical letters can target the same paper, resulting in more letters than targets. 
+Through manual and automated efforts we annotated a sample of recent letters published in Nature, Science, and PNAS, finding the majority to be valid instances of criticism.
+Here, a valid criticism is when the letter presents arguments that raise uncertainty about at least one claim made in the targeted paper, as judged by a human annotator and, separately, by a large language model.
+The level of validity is high in each of the three journals, with the lowest (73\% by manual annotation, 87.6\% by automated) in PNAS (see Supplementary Notes 3 and 7).
+Critical letters also routinely included novel work such as replications or new data (Table~\ref{si:table:annotation}) and were noted as being of high interest to understanding the targeted work (Table~\ref{si:table:llm-counts}).
+
+Using this corpus of critical letters, we conduct an analysis of three topics.
+First, we examine the origins of criticism, namely, what distinguishes papers targeted by criticism.
+Second, we conduct a quasi-experimental analysis to quantify the effects of the receipt of criticism on the targeted paper and author.
+Third, we examine the visibility of criticism, by which we mean the extent to which critical letters reach those who engage with the targeted paper, as reflected in whether the letter is co-cited alongside its target, the attention it receives on social media and in the news, and the topical similarity of the papers that cite it; throughout, we use visibility to refer to the reach of critical letters, rather than to the citation impact of the papers they target. 
+
+
+\subsection*{The origins of criticism}
+Why do some papers receive criticism, while others do not?
+We examine the origins of criticism through contrasting the characteristics of papers that receive criticism against counterpart papers in the same journal.
+Our goal is to build upon past research that identified attention as a correlate of criticism~\cite{radicchi_2012_comment}, with the aim of reproducing this result while also expanding the scope to additional paper characteristics, including attention, interdisciplinarity, and novelty.
+
+Here, we adopt a bibliometric conceptualization of attention, treating it as equivalent to citation impact, and operationalizing it through the proxy of citations accumulated within 3 years of a paper's publication; in exploratory analyses, we also consider attention on social media and in the news (see below).
+We note that attention itself is not directly measured: citations, as well as social media and news mentions, capture only observable traces of engagement with a paper, and not, for instance, cases where someone may have read a paper but not cited it.
+
+Critical letters are disproportionately directed at the highest cited papers in each journal (Fig.~\ref*{fig:paper-features}.A1 - A5).
+The measure $\mu_{rank}$ represents the mean percentile rank of criticized papers' citation impact relative to all papers in the same journal. 
+The strongest concentration is observed in PNAS ($\mu_{\text{rank}} = 67.7\%$, Fig.~\ref*{fig:paper-features}.A3), and the weakest in PRL ($\mu_{\text{rank}} = 54.2\%$, Fig.~\ref*{fig:paper-features}.A4).
+We also conduct one-sample Kolmogorov–Smirnov (1s KS) statistical tests comparing the percentile distribution of the citation impact of papers targeted by critical letters against a uniform distribution expected if letters were randomly targeted, finding a statistically significant concentration in all journals (all $p < 0.001$; Table~\ref*{si:table:paper-features-1sKS}).
+In a supplementary analysis of three specialist journals completed after this main analysis, criticized papers are similarly concentrated among the most highly cited ($\mu_{rank}$ between 63.4\% and 66.0\%, all $p < 0.001$; Table~\ref*{si:table:density-tests_1ks_extra}), comparable to the generalist journals ($\mu_{rank}$ between 66.2\% and 67.7\%) and higher than the APS journals ($\mu_{rank}$ between 54.2\% and 58.7\%).
+The relationship between (log-scaled) citation impact and the likelihood of receiving a critical letter is roughly linear in all journals (Fig.~\ref*{si:fig:impact-likelihood-scatter}).
+
+To further assess how well the citations alone explain the likelihood of the receipt of a critical letter, we fit logistic models for each journal and using the Nagelkerke $R^2$ goodness of fit (Table~\ref*{tab:psuedor2}), find the best fit for PNAS ($R^2 = 0.183$), and the lowest for PRL ($R^2 = 0.030$) and Other APS ($R^2 = 0.013$); 
+field-normalized measures of citation impact tend to offer a slightly improved fit.
+Together, these findings demonstrate the prominent role of attention, as reflected in citations, in the likelihood that a paper is targeted by a critical letter.
+
+
+Papers' interdisciplinarity is quantified using a bibliometric measure based on the balance and diversity of fields represented among its references.
+Specifically, we use Simpson's Diversity Index of the fields represented among a paper's references~\cite{chen_2015_interdisciplinary} (see \methods), which we here call reference diversity.
+Generally, the greater the number of fields represented among a paper's references and the more evenly balanced their frequency, the greater its interdisciplinarity.
+
+We observe that papers targeted by critical letters are concentrated among the most interdisciplinary in each journal, although to a lesser extent than observed for citation impact (Fig.~\ref*{fig:paper-features}.B1 - B5).
+The strongest concentration is observed for PNAS ($\mu_{\text{rank}} = 56.4\%$, Fig.~\ref*{fig:paper-features}.B3), and weakest for PRL ($\mu_{\text{rank}} = 51.4\%$, Fig.~\ref*{fig:paper-features}.B4) and Other APS ($\mu_{\text{rank}} = 50.3\%$, Fig.~\ref*{fig:paper-features}.B5). 
+
+At least some of the difference observed for reference diversity may in fact be the result of interdisciplinarity mediating the effect between citation impact and likelihood of criticism.
+That is, papers with more diverse references tend to have greater citation impact. 
+Indeed, empirical evidence demonstrates that many of the most cited papers tend to have high levels of interdisciplinarity~\cite{chen_2015_interdisciplinary, yegros-yegros_2015_interdisciplinarity}.
+To test this, we also compare each distribution against a control population of non-targeted papers matched from the same journal, with a similar year of publication and citation impact (see \methods). 
+To compare, we use a two-sample Kolmogorov–Smirnov (2s KS) test comparing the percentile distribution of the two populations.
+These comparisons depend on how the matched population is specified; we therefore urge cautious interpretation (Table~\ref*{si:table:paper-features-2sKS}).
+The strongest effect is again observed for PNAS, for which the criticized papers are among those with the highest reference diversity and distinct from the matched population (both $p < 0.001$; Fig.~\ref*{fig:paper-features}.B3).
+For Nature, reference diversity is distinct from both the uniform distribution ($p = 0.026$) and the matched population ($p < 0.001$; Fig.~\ref*{fig:paper-features}.B1); for Science, criticized papers are distinct from the uniform distribution ($p = 0.006$) but not from the matched population ($p = 0.182$; Fig.~\ref*{fig:paper-features}.B2).
+For PRL, criticized papers are distinct from the control population ($p = 0.009$), although the shift in mean rank relative to a uniform distribution is small enough ($\mu_{rank} = 51.4\%$) that the Bayes factor favors no difference ($BF_{01} = 5.7$; Fig.~\ref*{fig:paper-features}.B4).
+Notably, in Other APS journals, Bayes factors provide strong evidence that criticized papers are not concentrated among the most interdisciplinary ($p = 0.308$, $BF_{01} = 17.6$), although they are distinct from the matched population ($p = 0.010$; Fig.~\ref*{fig:paper-features}.B5), though interpretation is unclear considering that this group includes multiple journals.
+Full statistics, including effect sizes and confidence intervals, are reported in Tables~\ref*{si:table:paper-features-1sKS}--\ref*{si:table:paper-features-2sKS}.
+Reference diversity may, in certain contexts, be associated with criticism, but also to some extent may be mediated by citation impact.
+
+A paper may attract interdisciplinary attention---that is, citations from a diverse set of fields---even if it does not cross disciplinary boundaries. 
+Here, we use Simpson's diversity index to measure the diversity of fields represented among the papers citing a targeted paper (Fig.~\ref*{fig:paper-features}.C1 - C5).
+We limit to citations accumulated by a paper within 5 years.
+For Nature, targeted papers are concentrated among those with the most interdisciplinary citations ($p = 0.029$) and are distinct from a control distribution of papers with similar citation impact ($p = 0.008$; Fig.~\ref*{fig:paper-features}.C1), suggesting that in this journal citation diversity is associated with criticism beyond citation impact.
+For PNAS (both $p < 0.001$; Fig.~\ref*{fig:paper-features}.C3) and PRL ($p = 0.002$ and $p = 0.033$; Fig.~\ref*{fig:paper-features}.C4) we observe evidence that the interdisciplinarity of a paper's citations is associated with receiving criticism, with the strongest effect for PNAS; for PRL, however, the difference from a uniform distribution is small, and the Bayes factor favors no difference in mean rank ($BF_{01} = 6.5$).
+By contrast, Bayes factors provide strong evidence that criticized papers are not concentrated among those with the highest citation diversity in Science ($p = 0.122$, $BF_{01} = 10.2$; Fig.~\ref*{fig:paper-features}.C2) and Other APS ($p = 0.748$, $BF_{01} = 44.3$), and moderate evidence that in Other APS they do not differ from the matched population ($p = 0.068$, $BF_{01} = 6.0$; Fig.~\ref*{fig:paper-features}.C5).
+In general, these findings suggest at best mixed relevance of citation diversity with differences between journals, where in some cases we find it irrelevant (Science, Other APS) and in others we observe evidence of its relevance (Nature, PNAS, PRL).
+
+
+Novelty is quantified using a widely recognized bibliometric measure based on the atypicality of a paper's references~\cite{uzzi_2013_atypical}.
+Specifically, we compare how often each pair of journals is co-cited in the literature against null models in which citations are randomly reassigned; a paper that cites pairs of journals rarely seen together is considered more novel (see \methods).
+In our results (Fig.~\ref*{fig:paper-features}.D1 - D5), we see a similar pattern in many journals.
+For Nature, PNAS, PRL, and Other APS (Fig.~\ref*{fig:paper-features}.D1, D3--D5), criticized papers tend to be among the most novel in their journal (all $p \le 0.006$) and are also more novel than the matched population ($p$ between $< 0.001$ and 0.040), although Bayes factors support this difference only for Nature and PNAS ($BF_{01} = 0.03$ and $< 0.01$) and are inconclusive for PRL and Other APS ($BF_{01} = 1.1$ and 2.0).
+Only for Science (Fig.~\ref*{fig:paper-features}.D2) do we find moderate evidence that criticized papers do not differ from the matched population ($p = 0.144$, $BF_{01} = 3.2$), consistent with novelty being mediated by citation impact in this journal---novel papers tend to have more citations, and citations are in turn associated with criticism. 
+Indeed, empirical work has observed that novel papers have distinct citation patterns~\cite{wang_2017_novelty}.
+These results suggest that criticism is more frequent among novel papers, although this is only partly mediated by citation impact.
+
+In addition to these characteristics at the paper level, we also examine whether the likelihood that a paper receives a critical letter is associated with the demographics of its authors. 
+We conducted an exploratory analysis of three well-founded and methodologically tractable factors: (i) gender, inferred based on authors' first names;
+(ii) seniority, defined as the years since an author's first publication; 
+and (iii) affiliation prestige, operationalized based on the authors' institutions appearing within the top 30 in terms of citation impact from the Leiden Rankings (details in \methods).
+
+Evidence suggests that women may face biases in academic hiring~\cite{moss-racusin_2012_bias} and journal peer review~\cite{fox_2019_gender, hengel_2022_female}.
+However, among criticized papers, we find little evidence that papers with women as first or last authors are disproportionately targeted for criticism: the average marginal effects are statistically significant only for first and last authors in PRL (average marginal effect on the probability of receiving a critical letter, AME $= 0.067$ and $0.083$; $p = 0.046$ and $p = 0.029$, respectively), and Bayes factors provide moderate to strong evidence against an association with gender in every journal, including PRL ($BF_{01}$ between 3.4 and 30.1; Figs.~\ref*{si:fig:margins_first-auhor}--\ref*{si:fig:margins_last-auhor}, Table~\ref*{si:tab:ame}).
+Seniority and prestige may also influence patterns of critique. 
+Researchers may be hesitant to criticize senior or prominent faculty, while junior faculty could be perceived as more vulnerable targets.
+Our findings provide mixed evidence: senior first authors are more likely to receive criticism than junior authors within PNAS, PRL, and Other APS (AME between 0.080 and 0.127; $p$ between 0.006 and 0.034), while for last authors the association is mixed, positive in Nature (AME $= 0.213$, $p = 0.040$) and negative in Science (AME $= -0.137$, $p = 0.032$). 
+Additionally, statistically significant effects of the prestige of the authors’ institutional affiliation are observed only for last authors, and in opposite directions (positive in Nature, AME $= 0.242$, $p = 0.011$; negative in PNAS, AME $= -0.089$, $p = 0.030$).
+For these statistically significant effects of seniority and prestige, however, Bayes factors range from inconclusive to moderate evidence for no association ($BF_{01}$ between 0.54 and 3.2), whereas they provide moderate to strong evidence against associations with seniority or prestige in most other cases (see Supplementary Note 4 and Table~\ref*{si:tab:ame}).
+Overall, our analysis offers only limited support for the role of author demographics in shaping the likelihood of receiving criticism, with modest associations tied to seniority and no consistent statistically significant evidence for gender or institutional prestige.
+
+A variety of other paper-level characteristics may influence the likelihood of receiving criticism. One such characteristic is the paper’s discipline, as some fields may be more prone to critical discourse.
+We examine the representation of the disciplines of criticized papers compared to the journal as a whole (Fig.~\ref*{si:fig:field-representation}). 
+In doing so, we observe that in the three generalist journals (Nature, Science, and PNAS), fields such as Geology and Environmental Sciences are over-represented, affirming similar findings regarding the earth sciences in previous work~\cite{lamers_2021_disagreement}. 
+Social sciences disciplines, among them History, Geography, and Political Science, are also over-represented.
+We also explored characteristics that, while lacking rigorous measures or firm theoretical grounding, still warrant consideration.
+Prior research indicates that papers eventually retracted often receive outsized early attention on social media~\cite{peng2022retracted, serghiou_2021_attention}. 
+Similarly, we find that papers receiving critical letters are more likely to have been mentioned in at least one tweet (now X post) or news story (Fig.~\ref*{si:fig:media_engagement_proportion}).
+Moreover, criticized papers are disproportionately concentrated among those with the highest levels of social media engagement in Science, PNAS, and Other APS (Fig.~\ref*{si:fig:tweet_distribution}).
+Although exploratory, these findings suggest a connection between media exposure and criticism. Media attention may broaden a paper’s readership to a larger, potentially more critical audience. Alternatively, provocative topics may simultaneously attract both media attention and critique.
+
+In summary, across all journals, the papers that receive criticism are disproportionately highly cited, with the weakest association observed for APS journals.
+These papers also exhibit higher levels of interdisciplinarity and novelty, although these effects are generally weaker, context-dependent, and in some cases mediated by citation impact.
+Interpreted through the lens of fragmented Mertonian science, these patterns suggest that scrutiny follows attention and, to a lesser extent, targets boundary-crossing work.
+Analyses of author demographics and other paper characteristics reveal no clear evidence of deviations from the norms of universalism or disinterestedness.
+
+
+
+%
+% CONSEQUENCES OF CRITICISM
+%
+\subsection*{The consequences of criticism}
+The effect of criticism on the citation impact of a paper remains an open question. 
+On one hand, critical letters may act as a kind of negative assessment, with effects similar to the scandal of a retraction~\cite{peng2022retracted,azoulay_2015_retractions}.
+On the other hand, criticism could bring more attention (and thus citations) to a paper, consistent with the adage that there is no such thing as bad publicity~\cite{radicchi_2012_comment,berger_2010_publicity}.
+A third possibility is that critical letters have no consequence at all on citations, possibly because they go unread or are dismissed as inconsequential. 
+
+We examine the effects of critical letters on citation trajectories through a quasi-experimental design inspired by previous studies of retractions~\cite{peng2022retracted}.
+Specifically, we compare the citation patterns of the papers that received critical letters (treatment group) with those of a matched set of similar papers that did not receive criticism (control group).
+Control papers were selected based on publication in the same journal, at a similar time, within the same field, and with similar citation impact at the time the critical letter was issued (see \methods).
+In all journals, the vast majority of criticized papers were matched with a comparable control (Table~\ref*{si:tab:paper-matched-counts}). 
+This matching procedure yielded high-quality comparisons, as evidenced by the close alignment of pre-criticism citation impact between treatment and control papers (Fig.~\ref*{si:fig:diagnostics}).
+Our outcome measure is the growth in cumulative citations over the three years following the critical letter, relative to citation counts prior to the criticism. 
+By comparing citation growth within each paper, we better account for sources of heterogeneity not captured by matching, such as fine-grained research topics.
+
+We find no statistically significant difference in citation growth between criticized papers and their matched peers in the control group in four of the journals analyzed (Fig.~\ref*{fig:matched-results-impact}.A).
+The only exception is for Other APS journals (two-sided paired $t$-test, $t(308) = 3.04$, $p = 0.003$, $d_z = 0.17$, mean difference in log citation growth $= 0.085$, 95\% CI $[0.030, 0.140]$, $n = 309$ matched pairs) for which results suggest a slight tendency for criticized papers to receive more citations than the control.
+Bayes factors indicate a range of evidence in favor of the null hypothesis across journals, from anecdotal or weak evidence for Nature ($BF_{01} = 2.6$) and PNAS ($BF_{01} = 2.7$) to strong evidence for Science ($BF_{01} = 15.2$) and PRL ($BF_{01} = 13.4$); for Other APS, the Bayes factor instead favors the alternative hypothesis ($BF_{01} = 0.17$).
+Although these results are based on the most restrictive matching criteria, we also examine more lenient parameters; all combinations result in a small observed effect for the Other APS journal ($p$ between 0.003 and 0.038; Table~\ref*{si:tab:paper-matched-ttest}), but most would not withstand stricter significance criteria or post hoc corrections for multiple comparisons.
+Conducting the same analysis for each individual APS journal (Table~\ref{si:table:aps-journal-ttests}), the effect largely vanishes.
+The only remaining statistically significant effect was observed for PR-A, suggesting that the observed effect may be driven in part by the composition of each journal, akin to Simpson's paradox.
+
+The timing of the critical letter relative to the original paper's publication may also play a role. 
+Papers in PRL that received a critical letter within the same year of publication tended to have statistically-significant lower expected citation growth ($t(103) = -2.95$, $p = 0.004$, $d_z = -0.29$; $BF_{01} = 0.16$; Fig.~\ref*{si:fig:consequence_time-lag}B); for Nature, Science, and PNAS, we do not detect a statistically significant difference, with Bayes factors ranging from inconclusive to moderate evidence for no difference (Table~\ref*{si:tab:wilcoxon});
+whether this is the result of noise or an actual effect of criticism in PRL deserves examination in a future study.
+A statistically significant effect, though in the opposite direction (higher citation growth), is also observed for Other APS when considering letters issued after at least one year ($p = 0.008$; Fig.~\ref*{si:fig:consequence_time-lag}C), although this may also stem from the composition of the group. 
+In general, these findings indicate a minimal or negligible effect of critical letters on the citation trajectories of the targeted papers, with the small effects observed possibly reflecting statistical noise.
+
+To investigate potential career consequences, we employ a similar quasi-experimental design as was used for papers.
+For each lead author (first or last authors) of a paper targeted by a critical letter (treatment group), we identify a set of comparable peer authors as a control group.
+These control authors are selected among those who published in the same journal around the same time, with the same authorship role (first or last), similar average citation impact and productivity over the preceding five years, and a comparable career age (see \methods).
+As with papers, outcome measures are defined for each researcher as the growth in metrics that capture their average productivity or citation impact;
+growth is calculated between two periods: the five years preceding receipt of the critical letter and the five years after.
+The difficulty in matching authors means that far fewer end up matched compared to papers, fewer first authors than last authors, and varies greatly depending on the choice of matching parameter (Table~\ref*{si:tab:authors-matched-counts});
+we highlight results using a criterion of 15\% citation-impact and productivity tolerance that balances quality and quantity of matches, though analysis is repeated across all combinations.
+We find that while we lose many candidates, the resulting matches are of high quality with close alignment in terms of citation impact and productivity before receiving the critical letter (Tables~\ref*{si:tab:first-author-match-quality},\ref*{si:tab:last-author-match-quality}).
+
+We first consider authors' productivity, defined as the sum of their fractionalized authorship contributions in the period before and after receiving a critical letter. 
+Fractionalized authorship is calculated as their fractional contribution to the authorship of a paper, or $\frac{1}{\text{\# authors}}$.
+We assume that authors' productivity naturally changes over the course of their career, and for each author calculate the ratio of their productivity prior to and post criticism;
+by keeping comparisons within authors, we also ameliorate the effects of characteristics not controlled for during matching. 
+Our results do not show statistically significant differences in productivity between the treatment and control groups for first authors (Fig.~\ref*{fig:matched-results-impact}.B) or last authors (Fig.~\ref*{fig:matched-results-impact}.C; full statistics in Table~\ref*{si:tab:wilcoxon}).
+Bayes factors provide moderate evidence in favor of the null hypothesis for both first authors ($BF_{01}$ between 5.5 and 10.0) and last authors ($BF_{01}$ between 5.0 and 9.2). 
+We repeat the matching process with more lenient parameters (Table~\ref*{si:tab:authors-matched-productivity-ttest}) and while there are exceptions, overall they provide no strong evidence for any consequences of criticism on the productivity of the authors of the targeted paper. 
+
+We apply a similar method to evaluate how criticism influences the citation impact of an author's papers.
+Author citation impact is quantified as the average field-normalized 3-year citation impact of papers published in the five years following receipt of a critical letter, relative to those from the preceding five years.
+As with productivity, we mitigate career stage variations by calculating the ratio of citation impact between these periods for each author, allowing comparisons within-person.
+Across all journals we observe no significant difference between the average growth in citation impact before and after the criticism between treatment and control groups for both first (Fig.~\ref*{fig:matched-results-impact}.D) and last authors (Fig.~\ref*{fig:matched-results-impact}.E; full statistics in Table~\ref*{si:tab:wilcoxon}).
+Bayes factors similarly provide moderate to strong evidence in favor of the null hypothesis for both first authors ($BF_{01}$ between 3.4 and 10.0) and last authors ($BF_{01}$ between 3.3 and 10.8).
+This null result remains largely consistent across various combinations of matching parameters, with the exception of first authors in PRL, for whom three of five specifications indicate lower citation growth among criticized authors ($p$ between 0.021 and 0.046; Table~\ref*{si:tab:authors-matched-impact-ttest}).
+
+In summary, we find little evidence of any consequences of criticism. 
+This is not to say that there are none; merely that our findings offer no evidentiary support.
+We perform post hoc analyses of statistical power, finding that our data have sufficient observations to identify small effects for paper-level results, and moderate-to-large effects for author-level results (see Supplementary Note 8 and Fig.~\ref*{si:fig:statistical-power}).
+Bayes factors provide evidence in favor of the null hypothesis that ranges from moderate to strong for author-level outcomes, and from anecdotal or weak to strong for paper-level outcomes, with the exception of Other APS.
+These null findings diverge from what would be expected under an idealized Mertonian view of science in which organized skepticism is clearly consequential.
+
+%
+%
+%
+\subsection*{The visibility of criticism}
+
+If critical letters are indeed inconsequential, how can this be reconciled with the perceived importance of criticism in science?
+One explanation is that criticized papers receive fewer citations than the counterfactual scenario in which no criticism was issued.
+That is, other researchers who may potentially cite the paper will read the criticism but opt not to cite it, but this effect is masked by the large number of citations received by the target paper. 
+Without data on which researchers were exposed to a critical letter, we cannot test this explanation directly. 
+However, the available evidence suggests that this explanation is unlikely.
+Our analysis did not provide statistically significant evidence that papers have fewer citations than expected after being criticized (Fig.~\ref*{fig:matched-results-impact}). 
+We also see that after receiving criticism, targeted papers continue to receive a high number of citations (Fig.~\ref*{fig:visibility}) and follow steady trends.
+
+A second explanation is that researchers are exposed to the critical letter but do not change their citing behavior.
+They may find the criticisms unpersuasive, or the citation serves a purpose unrelated to the validity of the criticized work.
+In this scenario, researchers who cite the original paper should also cite the critical letter for context.
+However, we observe that only a small fraction of citations to the targeted article are accompanied by a citation to the critical letter: around 7--11\% for generalist journals and 14--17\% for specialist APS journals in the initial years, and generally declining over time (Fig.~\ref*{fig:visibility}).
+
+While we assume that researchers aware of a critical letter would likely co-cite it with the original paper, we cannot confirm this assumption without data on researchers' exposure to specific letters.
+However, we argue that lack of visibility is one possible explanation that aligns with our findings. 
+This view is supported by altmetric counts sourced from SciSciNet~\cite{lin_2023_sciscinet}, which show that critical letters receive considerably fewer tweets and news mentions than the papers they critique (Fig.~\ref*{si:fig:letter_altmetrics}).
+Assuming that altmetric measures serve as reasonable proxies for visibility, these findings suggest that critical letters reach a much smaller audience than the original papers, potentially limiting their influence on broader citation behaviors.
+
+
+The visibility of critical letters is not uniform across all readers.
+Given the fragmentation of fields~\cite{leydesdorff2001sociological}, researchers may be most likely to encounter letters in their own field, whereas those from distant fields may see the original paper, especially if highly cited, but not its criticism. 
+To test this, we generate vector representations for each paper targeted by a critical letter, as well as for all papers that cite it (see \methods).
+The cosine distance between these vectors provides an approximate measure of topical similarity.
+A similar approach has previously been used to evaluate the topical distance between retracted papers and their post-retraction citations~\cite{woo_2024_retractions}.
+After excluding replies and self-citations, we find that papers co-citing the critical letter tend to be among the most topically similar to the targeted paper (Fig.~\ref*{fig:embedding}).
+% [CHANGED] was: This effect is most pronounced in generalist journals such as Nature, Science, and PNAS ($\mu$ between 57.5\% and 59.3\%), and is present but weaker for specialist APS journals (PRL: $\mu = 52.5\%$; Other APS: $\mu = 53.3\%$; all $p < 0.001$; Table~\ref*{si:table:embedding-tests}), possibly because these journals primarily attract citations from within their own field, reducing the likelihood of cross-disciplinary citations.
+This effect is most pronounced in generalist journals such as Nature, Science, and PNAS ($\mu_{rank}$ between 57.5\% and 59.3\%), and is present but weaker for specialist APS journals (PRL: $\mu_{rank} = 52.5\%$; Other APS: $\mu_{rank} = 53.3\%$; all $p < 0.001$; Table~\ref*{si:table:embedding-tests}), possibly because these journals primarily attract citations from within their own field, reducing the likelihood of cross-disciplinary citations.
+% [CHANGED] was: In our supplemental analysis of three specialist journals, we observe mean ranks close to 50\% (Geology: $\mu = 50.0\%$; EST: $\mu = 50.4\%$), or a pattern similar to APS journals (JCP: $\mu = 52.0\%$; Table~\ref*{si:table:embedding_tests_extra}), reinforcing a distinction between generalist and specialist venues.
+In our supplemental analysis of three specialist journals, we observe mean ranks close to 50\% (Geology: $\mu_{rank} = 50.0\%$; EST: $\mu_{rank} = 50.4\%$), or a pattern similar to APS journals (JCP: $\mu_{rank} = 52.0\%$; Table~\ref*{si:table:embedding_tests_extra}), reinforcing a distinction between generalist and specialist venues. 
+
+In summary, we find critical letters to have limited visibility, with engagement concentrated among their particular topical community.
+Venue-level differences may highlight the differing roles that journals play in the communication system of science.
+These findings are consistent with a version of fragmented-Mertonian science in which criticisms are less visible between fields than are the papers they target. 
+
+
+%
+%
+%
+\section*{Discussion}
+Criticism is widely regarded as a fundamental component of science, central to theories of scientific progress, and pervasive throughout its history.
+Critical letters represent formalized instances of reflexive meta-communication within science's self-organizing communication system~\cite{leydesdorff2001sociological,leydesdorff2010communication} and explicit manifestations of organized skepticism. This makes critical letters an effective case study for examining the origins, consequences, and visibility of criticism in science.
+
+Post hoc, we adopt Robert Merton's norms of science alongside Leydesdorff's communication framework as interpretive lenses to contextualize our findings.
+Building from Merton's and Leydesdorff's frameworks, we propose three possible regimes of scholarly communication that lie along a spectrum: idealized Mertonian, fragmented Mertonian, and non-Mertonian science.
+Each regime aligns with different patterns in the origins, consequences, and visibility of critical letters.
+
+At one end of this spectrum lies idealized Mertonian science which represents an aspirational baseline rather than an expected reality of scientific practice. 
+With respect to origin, this type of science anticipates that critical letters are issued in response to substantive issues throughout the scientific record.
+In combination with the norm of universalism, the targets of criticism should not depend on the papers' characteristics, such as the nature of the targeted claim, the prestige of the journal, or the demographics of the authors. 
+In short, critique should follow epistemic need, issued against contestable research. 
+In this perspective, critical letters are also expected to have an effect on the citation impact of the target paper and the career of targeted authors.
+When the targeted work is cited, critical letters should be co-cited to qualify and contextualize the cited claims.
+As expressions of legitimate disagreement between epistemic peers, such criticism should be viewed as routine within science and should not result in professional penalties when received.
+With respect to visibility, criticism should be widely disseminated, read and engaged by all those who engage with the original work. 
+
+Although these outcomes reflect an idealized ethos, the actual organization of scientific practice shapes the extent to which they are realized.
+Fragmented Mertonian science reflects how Mertonian norms manifest given the practical constraints of scientific communication.
+Regarding their origins, highly cited papers are those that are selected and amplified, and thus are more likely to attract reflexive scrutiny in the form of criticism. 
+The distinct disciplinary cultures and expectations formed in fragmented fields of study~\cite{leydesdorff2001sociological,knorr1999epistemic} can also cause conflict when work crosses disciplinary boundaries~\cite{mcleish_2016_interdisciplinary, brohman_2016_interdisciplinary} or is novel~\cite{boudreau_2016_looking,li_2017_expertise,siler_2016_review,lane_2022_conservatism,ayoubi_2021_novel}.
+Regarding consequence, the consequences of critical letters will be constrained by their visibility.
+Letters are likely to be visible---and thus consequential---primarily within their topical communities where communication is most dense; their limited reach beyond those boundaries, however, reduces their integration into the broader scientific discourse. 
+As a result, the effects of critical letters will be strongest within the originating community and attenuated in more distant domains.
+
+At the opposite end of the spectrum lies non-Mertonian science, which would represent a genuine departure from scientific ideals.
+For example, a decline in universalism may result in marginalized scholars receiving disproportionate scrutiny. 
+In the absence of communism, criticism may be used to enforce disciplinary boundaries and protect intellectual territory~\cite{Gieryn1999, Klein2021}.
+Without disinterestedness, scientists may engage in critique to defend favored theories~\cite{azoulay_2019_funeral} or to attract attention through bad-faith provocation~\cite{tannen2002agonism}.
+In other instances, criticism may not be treated as a normal part of scientific discourse, but rather as scandalous~\cite{azoulay_2017_scandal}, with negative professional consequences for those targeted.
+Through analysis of criticism as practiced, including their origins, consequences, and visibility, our study provides insights into how actual scientific communication practices map onto these regimes. 
+
+We highlight the central role of attention in the origins of criticism, which we measure as the citations a paper accumulates within three years of publication: as a paper receives more citations (or online engagement), it is more likely to have been targeted by a critical letter. 
+Through the lens of fragmented Mertonian science, this pattern can be understood as scrutiny following attention.
+This has previously been proposed to explain why retractions are disproportionately common in large generalist journals~\cite{cokol_2007_retracted}.
+Under this explanation, interdisciplinarity (measured by the diversity of fields among a paper's references) and novelty (measured by the atypicality of the journal pairs a paper cites), along with other paper-level characteristics, influence criticism in two ways.
+First, they attract attention to a paper and thus increase scrutiny, as evidenced by the partial mediating effect of citations.
+Second, fragmentation into narrow communities with distinct cultures~\cite{leydesdorff2001sociological,zollman2007network} can result in criticism of boundary-crossing work.
+We argue that this explanation is the most intuitive and also the one most consistent with our findings.
+
+Regarding the consequences of criticism, our study finds no strong evidence of any effect --- neither on the citation impact of papers targeted by criticism nor on the future performance of their authors.
+In other words, our findings are consistent with the view that criticism is epiphenomenal to attention and does little to bring newfound attention nor detract from the attention that a paper receives, as reflected in its citations.
+This is surprising given how theories and the ethos of science characterize criticism as consequential. Interpreting these null findings post hoc through our theoretical framework, however, suggests they reflect the reality of fragmented communication structures rather than a failure of organized skepticism per se.
+Indeed, contradictory replications have been shown to prompt scientists to revise their beliefs about an original study~\cite{mcdiarmid_2021_replication}; one would expect a similar adjustment in response to criticism, and yet no clear and consistent effects are observed. 
+
+One explanation for the absence of consequences is that critical letters lack substance.
+That is, they may not offer critiques of sufficient merit or relevance to influence readers' citing behaviors.
+However, we believe this explanation to be unlikely:
+a manual review of critical letters indicates that most are supported by substantial efforts, such as replications or new data (see Supplementary Note 3 and Table~\ref{si:table:annotation}). 
+We also conduct a separate analysis using large language models to annotate a subset of critical letters based on their content, finding that the vast majority are of high interest to the scientific audience engaged with the work (see Supplementary Note 7 and Table~\ref{si:table:llm-counts}). 
+Notably, the proportion of letters presenting new evidence---empirical work not previously published, such as replications, new data, or new analyses (Table~\ref{si:table:annotation})---and the proportion labeled as high interest, that is, raising substantive uncertainty about the targeted paper's findings such that the paper should be cited alongside the critique or not at all (Table~\ref{si:table:llm-counts}), are lower in PNAS, where many letters instead rely on argumentation and citation to prior literature (see Supplementary Note 3);
+yet results for PNAS are similar to those in Nature and Science, suggesting that, at least among the journals we study, the substance of criticisms is unrelated to their consequences.
+In further support of this argument, analysis of a subset of critical letters identified as high interest does not demonstrate qualitatively different findings (Table~\ref{si:table:high-interest-analysis}); only PNAS reaches significance ($p = 0.044$), comparable to the full sample ($p = 0.063$; Table~\ref{si:table:high-interest-analysis}). 
+It is also possible that replies consistently address the critiques.
+However, replies tend to receive fewer citations and less attention on social media and in the news than critical letters, suggesting that they have even less visibility (Table~\ref*{si:tab:letters-and-replies-visibility}).
+Taken together, this evidence suggests that critical letters are indeed substantive, and therefore an alternative explanation is needed.
+
+We propose that one possible explanation for the lack of consequences of critical letters is due to their limited visibility.
+Specifically, while the authors read the original paper, they may overlook the associated critical letter, perhaps not even knowing that it exists.
+Our results support this view, revealing that critical letters receive only a fraction of the citations of the papers they target, even as the target papers continue to accumulate citations years after its publication. 
+
+Within Leydesdorff's framework, this pattern reflects the fragmented structure of scientific communication. 
+Critical letters, as second-order communications, rely on awareness and uptake to influence the selection mechanisms that determine which first-order communications are amplified. 
+When criticism remains invisible to most potential citers, it cannot effectively prompt re-evaluation of the targeted work's claims, limiting its role in the self-correcting function of science.
+
+Differences in visibility can also be understood in terms of two strategies for engaging with the literature~\cite{woo_2024_retractions}.
+The first is an engaged approach, in which authors actively interact with the literature and cite only what they have read thoroughly.
+The second is a heuristic approach, where citations are made without fully reading or understanding the paper.
+Heuristic approaches may involve lifting citations directly from the references of another paper, incorporating citations used in one's previous work without knowledge of ongoing developments, or referencing work based only on cursory readings. 
+Many case studies highlight such heuristic processes in relevant contexts.
+Retracted studies and misquoted findings often persist in the academic literature due to a lack of awareness of the retraction~\cite{schneider_2020_retraction, leung_2017_letter, hsiao_2021_retracted}.
+In one notable case, a critical article was frequently cited in support of the article it criticized, indicating that even citations to the critical letter may sometimes lack genuine engagement~\cite{stang_2018_quotation}.
+Thus, authors following a heuristic approach to citation may cite the original paper without realizing that a critique exists.
+
+According to this interpretation, researchers who follow an engaged citation approach are more likely to be aware of and cite critical letters.
+Consistent with fragmented Mertonian science, researchers are particularly inclined toward an engaged approach within their own field where communication is most dense and meaningful.
+Our findings support this notion: papers that co-cite both the critical letter and the targeted article are typically the most topically similar to the target.
+Together, these observations suggest that authors aware of critical letters tend to cite them, while most citations to the targeted paper likely occur without full awareness of the critiques it has received.
+
+Visibility also provides a useful perspective to understand why our findings vary between journals.
+The link between citing paper similarity and co-citation of the critical letter is most pronounced among the generalist journals, and much less pronounced (or in cases nonexistent) for APS journals and the three specialist journals considered in our supplemental analysis.
+Journals like Nature, Science, and PNAS attract broad readerships, and papers published there are likely to be seen and cited by authors from distant fields who may be less familiar with the specific literature surrounding the paper.
+In contrast, APS journals focus on physics and reach a narrower readership, such that readers are more likely to share a similar disciplinary context with the criticized paper and so to be aware of critiques within that literature.
+Other specialist journals exhibit similar patterns (Table~\ref{si:table:embedding_tests_extra}, additional details in Supplementary Note 6).
+This shows that the interdisciplinarity of a journal---its ability to communicate across diverse disciplinary divides---should be considered in studies of academic criticism and scholarly communication more generally.
+
+% Limitations paragraph...be brief
+This study should be understood in the context of its limitations.
+First, our focus on critical letters in a select group of journals restricts the generalizability of our findings to other scientific fields and broader forms of scientific disagreement;
+one goal of our work is to establish a framework that can be applied to other contexts. 
+Second, while we attempt to isolate the effects of critical letters, there remain unobserved confounding factors, such as a study's rigor and provocativeness, among others, that might shape the likelihood of receiving criticism or its consequences. 
+Furthermore, there are differences in editorial policy between journals; in PNAS for instance, critical letters must be submitted to the journal within six months of the publication of its target.
+Allowable word count, the number of figures and the number of references also vary between journals.
+In addition, editors have discretion over which letters to accept, and this selection may favor letters targeting papers that are already highly cited.
+However, we note that the findings are broadly consistent across journals, in spite of editorial differences, suggesting a limited effect.
+Third, while we argue that critical letters are the most explicit and formal instances of criticism in science, critique is ubiquitous and operates through many channels: within original research articles, outside scholarly literature via blogs, social media, or private correspondence.
+Critical letters are the most accessible to study, but they represent a fraction of all scientific criticism.
+Fourth, we focus on the effects of criticism as they manifest in papers' citations and authors' performance; 
+this provides only a limited view of the potential consequences of criticism that future work could expand upon.
+
+Our findings also provide a useful framework for understanding another form of criticism in science: post-publication peer review.
+This alternative form of peer review has gained increased popularity as a potential remedy for many of the limitations of traditional pre-publication peer review.
+Specifically, it is believed that post-publication peer review will enable the rapid dissemination of findings and transparent evaluation by the broader scientific community~\cite{bastian2014stronger, winker2015promise}.
+Platforms such as F1000 and PubPeer have made strides in popularizing post-publication peer review~\cite{thelwall_2020_open, ortega2021pubpeer}.
+Red teaming, as is used in the tech sector to probe security vulnerabilities, has also been proposed as a formal practice to unearth errors in published work~\cite{lakens_2020_critics}.
+However, because this practice remains relatively new and limited in scale, it is not yet clear how effectively it will function when implemented more broadly.
+Critical letters provide a natural analogue for studying post-publication peer review and may even represent a best-case scenario.
+Publishing a critical letter is challenging, often constrained by tight timelines, word limits, and editorial discretion;
+as a result, the critiques published after this gauntlet are likely to be rigorous and substantive.
+However, our findings reveal significant challenges for the broader adoption of post-publication peer review.
+Like critical letters, post-publication peer review may end up disproportionately focused on highly cited papers and suffer from limited visibility.
+We believe these to be problems that post-publication peer review will need to address if it is to be implemented on a wide scale. 
+
+Our findings further illustrate a recurring pattern in science: while initial claims garner significant attention, their subsequent evaluations receive only a fraction of that attention, as measured by citations. 
+This phenomenon has been documented in the context of retractions~\cite{woo_2024_retractions, peng2022retracted}, large-scale replication studies~\cite{hardwicke_2021_contradictory, schafmeister_2021_replication}, and now with our study of post-publication critiques. 
+These practices represent some of the few formal reflexive mechanisms for reconciling competing truth claims in science and are key to maintaining organized skepticism. 
+However, each---albeit to varying degrees---demonstrates limitations in both effectiveness and visibility.
+
+If scientific institutions aim to improve the visibility of retractions, replications, and critical letters, several interventions could be considered. 
+One approach is to enhance the prominence of these mechanisms on journal websites. 
+For example, journals could make links to criticisms more visible on article landing pages or flag associated criticisms and commentaries in search engine results. 
+Retractions, which are currently the most visible of these mechanisms, serve as a model because of their clear and prominent labeling.
+Another approach involves implementing automated checks during the journal submission process.
+Such systems could flag references to retracted, replicated, or criticized studies, prompting the authors to evaluate and justify these citations while providing referees with relevant information for review. 
+Similar measures have already been proposed to increase awareness of retracted studies~\cite{BarIlan_2017_post-retraction, BornemannCimenti_2015_retracted}, but could be extended to linking critical letters, commentaries, and replications.
+
+Interpreted through our Mertonian framework, these findings suggest that criticism-as-practiced falls short of idealized science while still operating within broadly normative bounds.
+Given the fundamental role of criticism, steps can be taken to raise the incidence and visibility of criticism and bolster the capacity of science for organized skepticism.
+Enhanced visibility and thoughtful citation practices can help ensure that scholars engage with references alongside their full intellectual context.
+
+%
+% METHODS AND MATERIALS
+%
+\section*{Methods}
+
+\subsection*{Data}
+Data are sourced from the Microsoft Academic Graph (MAG)~\cite{sinha2015overview}.
+MAG indexes basic paper metadata, disambiguated author profiles, and an ontology defining the hierarchy of disciplines, sub-disciplines, and topics, multiple of which  can be mapped to each paper. 
+Each paper in MAG is tagged with a set of hierarchical field categories based on its content and metadata; we consider only tags at the highest level of aggregation, representing 19 distinct fields.
+In pilot analyses, we observed that MAG citation network has low coverage for citations links between papers published in PRL and Other APS journals, and therefore we supplement these with citation links taken from the 2020 version of the American Physical Society citation dataset.
+In addition, we also source certain paper-level characteristics from SciSciNet~\cite{lin_2023_sciscinet}, a public data lake for science of science research. 
+
+Critical letters from the journals Science, Physical Review Letters (PRL), and Physical Review A-E are identified by consistent naming conventions, with titles of the form ``Comment on'', followed by the title of the targeted paper.
+We query these directly from MAG to identify 402 critical letters targeting 405 papers in Science, 1,107 letters targeting 1,032 papers in PRL, and 949 letters targeting 931 papers in Physical Review A-E.
+The journals Nature (flagship journal only) and the Proceedings of the National Academy of Sciences (PNAS) do not use consistent naming conventions and cannot be identified from bibliometric metadata alone;
+instead, we use their websites' search functionality to retrieve a list of documents that are of the equivalent type to a critical letter (Matters Arising for Nature, Letters for PNAS).
+Using links embedded within each article's landing page, we identify the DOI of the targeted paper. 
+This results in 182 critical letters targeting 183 papers in Nature and 511 letters targeting 515 papers in PNAS.
+In total, we collect 3,151 critical letters targeting 3,066 papers from across these journals.
+We then retain only targeted papers that were published between 2000 and 2019, that were not retracted, for which citation data are available in MAG, and that have at least five references, which excludes editorials and other non-research items; a paper that received multiple critical letters is included once.
+The resulting analysis sample comprises 179 targeted papers (179 critical letters) in Nature, 396 (398) in Science, 513 (510) in PNAS, 834 (901) in PRL, and 746 (765) in Other APS, for a total of 2,668 targeted papers and 2,753 critical letters (Table~\ref*{si:tab:counts}, which also gives the number of articles in each journal from which the comparison populations are drawn).
+No statistical method was used to predetermine sample size; we analyzed all critical letters that could be identified in the selected journals and that met the criteria described above, and report a post hoc analysis of statistical power in Supplementary Note 8.
+Data were excluded only as described: targeted papers outside these criteria, papers with more than 20 authors in the analysis of author characteristics, authors with a career age of five years or less in the author matching, author self-citations and replies to critical letters in the analyses of visibility, and, for individual analyses, papers lacking the data required for a given measure (the resulting sample sizes are reported in the figure legends).
+As this is an observational study, the analyses were not randomized; control papers and authors were instead selected by matching (see Matching).
+The investigators were not blinded to journal or to whether a paper received a critical letter during analysis and annotation.
+A supplemental analysis was also conducted for three specialist journals: Geology ($n = 212$), Journal of Chemical Physics (JCP, $n = 185$), and Environmental Science \& Technology (EST, $n = 205$); results for this analysis are presented in the \appendix.
+
+\subsection*{Paper characteristics}
+Each paper in our dataset is characterized along a variety of metrics. 
+The first of these is its citation impact.
+In all cases, we consider the $t$-year citation impact, defined as the total number of citations accumulated by a paper within a number of years, $t$;
+unless otherwise stated, we use $t=3$, although generally the metric is highly correlated across values of $t$. 
+
+Next, we compute measures of the interdisciplinarity of papers;
+following past bibliometric literature~\cite{chen_2015_interdisciplinary}, we operationalize this as two metrics. 
+The first is the diversity of a paper's references, reflecting the interdisciplinarity of its influences.
+The second is the diversity of the citations of the paper, reflecting the diversity of its audience.
+We measure diversity using Simpson's Diversity Index~\cite{simpson_1949_diversity} which measures the balance and variety of categories represented in a population. 
+The index is formalized as $\sum{(\frac{n}{N})^{2}}$ where $n$ is the number of members in a particular category, and $N$ is the total number of members in all categories. 
+For each of our papers, the population is the set of its references (or citations), and the categories are the high-level MAG field categories assigned to these publications; in the case that a paper is assigned to multiple categories, it appears multiple times for each. 
+Only papers with at least 10 references or more than 10 citations are considered.
+
+A measure of novelty is also computed for each paper. 
+Here, novelty is defined based on a widely used bibliographic measure that captures the atypicality of a paper's citations~\cite{uzzi_2013_atypical}. 
+While SciSciNet pre-computes this measure for records in MAG, we opt to implement the measure ourselves in order to include citation links from the American Physical Society bibliographic dataset.
+The measure is implemented by counting the total number of co-occurrences of journal pairs appearing in the citation lists of papers and comparing them against 10 null models in which citations are randomly distributed.
+Z-scores are computed between the real and the null values.
+Then, each paper is represented as a set of Z-scores corresponding to each pair of journals that appear in its reference list.
+The 10th percentile of a paper's Z-scores (that is, the 10\% quantile of their distribution of journal pair Z-scores) is used as its measure of novelty.
+% [CHANGED] was: Only papers with at least 10 references are considered.
+Only papers with at least five references are considered.
+
+For the sake of consistent interpretation across metrics, we consider the reverse Simpson's index and the reverse novelty score, in which larger values correspond to greater interdisciplinarity or greater novelty. 
+
+
+\subsection*{Matching}
+For each paper targeted by a critical letter (treatment), we identify a matched set of peer papers with similar characteristics from the same journal (control). 
+
+The first characteristic considered in a match is the paper's high-level field category. 
+In the case where a paper is assigned to multiple fields, one is selected at random and a dummy variable is set that notes it as multidisciplinary. 
+Papers must have an exact field match. 
+Next we record the date of publication using the year; the match tolerance for the year is a tunable parameter that we explore for papers in Table~\ref*{si:tab:paper-matched-ttest} and for authors in Tables~\ref*{si:tab:authors-matched-productivity-ttest} and~\ref*{si:tab:authors-matched-impact-ttest}.
+Because papers published earlier in the year have longer to accumulate citations when calculating citation impact, we also encode a variable for the quarter which must exactly match. 
+Finally, we match based on a paper's citation impact.
+We implement two different matching policies for citation impact that will be used in separate analyses. 
+The first, used for the analysis presented in Fig.~\ref*{fig:paper-features}, simply matches based on the 3-year citation impact of papers.
+The second, used for the analysis presented in Fig.~\ref*{fig:matched-results-impact}, aims to match based on the citations accumulated until the year of publication of the critical letter; for example, if a paper published in 2010 received a letter in 2014, then the matching is performed based on the 4-year citation impact.
+If a critical letter was published in the same year as the original, then we use 1-year citations.
+Papers must have at least five citations to be included in the matching. 
+Matching tolerances are implemented as calipers and referred to by their nominal values (e.g., a 5\% citation-impact tolerance is a caliper of 0.05 standard deviations of log-normalized citation impact, and a one-year tolerance is a caliper of one standard deviation of publication year); for the analysis in Fig.~\ref*{fig:paper-features}, the year tolerance is measured directly in years. The exact tolerances are tunable parameters.
+
+The authors of the papers targeted by critical letters are also matched to a comparable control population. 
+Matching is performed only for those we define as lead authors, specifically the first and last authors, who tend to have made the largest contributions to a paper and have the most ownership~\cite{lariviere_2016_division}, with the first authors primarily executing a project, while the last authors are more often the conceptual lead~\cite{lariviere_2021_division}.
+For each treatment paper, we collect all papers published in the same journal within a 4-year time window of the critical letter, from which we extract all their first and last authors.
+A set of characteristics is computed for each candidate author based on these authors' publication histories.
+Rather than match authors exactly based on the time lag between the targeted paper and critical letter, we assume a standard lag of one year for all candidate authors for measuring changes in citation impact, which is the majority value among the treatment papers. 
+We attempt to match authors according to the field, age, productivity, and average citation impact of their papers. 
+An author's field is defined as the modal high-level field appearing in papers throughout their career history. 
+Career age is defined as the number of years between the author's first publication and the date of the critical letter (or equivalent time, for the candidate authors); only authors with a career age of more than five years are considered.
+Productivity is operationalized as the average yearly fractionalized productivity in the five years preceding the letter; for example, a paper coauthored with 4 others (for a total of 5 co-authors) will count for $\frac{1}{5}$ towards this count. 
+In addition, we calculate their lead productivity as the yearly average sum of papers in which they were a lead (first or last) author. 
+We also consider the average field-normalized 3-year citation impact of papers published in the preceding 5 years, where normalization is performed based on the average citation impact of all papers in MAG with the same granular (level 1) field tag; in the case that a paper has multiple tags, the average is taken across each. 
+The match tolerances for productivity and citation impact are tunable parameters, implemented as calipers in standard deviations of the log-normalized values; matched authors must also have lead productivity within 0.2 standard deviations. 
+
+In all cases, matching is implemented in R's MatchIt package~\cite{matchit_2011}. 
+The technique used is propensity score matching, and for each record in the treatment, only the one nearest candidate is used.
+The resulting matches are high quality, with a high degree of similarity between the matched and treatment populations (Fig.~\ref*{si:fig:diagnostics}, Tables~\ref*{si:tab:first-author-match-quality}-\ref*{si:tab:last-author-match-quality}).
+
+Matching cannot fully account for the heterogeneity between treatment populations.
+To mitigate this issue, all analyses consider within-record comparisons. 
+For papers, we compute the ratio of citations accumulated before the critical letter to those accumulated 3 years after; for example, if a paper received 10 citations by the time it received a letter, and after three more years accumulated a total of 40 citations, then the ratio would be $\frac{40}{10} = 4.0$. 
+We computed the same ratio for the authors based on the ratio of their average field-normalized citation impact in the five years before and after receipt of the critical letter.
+
+
+\subsection*{Author characteristics}
+We examine whether author demographic characteristics, in particular their gender, seniority, and university prestige, are associated with the likelihood of the receipt of a critical letter. 
+Gender is inferred based on the given name of researchers in MAG following previous work~\cite{huang_2020_gender};
+as a note of caution, we note the inherent limitations of name-based gender inference, including the inability to handle non-binary gender identities, challenges at distinguishing gender from anglicized versions of names common in East-Asian countries and cultures, and spotty data on given name in bibliometric metadata, leading to many missing values that limit the scale of analysis. 
+Due to these limitations, we consider our analysis of gender to be exploratory. 
+
+Seniority is implemented as a dummy variable indicating that a researcher's career age---the number of years between their first publication and the publication of the target paper---is more than ten years. 
+
+The prestige of a researchers' university is determined using the Leiden rankings~\cite{van_eck_2023_leiden}, a systematic ranking of global universities based on bibliometric indicators such as publication count, citation impact, and more.
+We limit to universities with more than 1,000 publications in a four-year Leiden Ranking period between 2006 and 2018, and rank them by the proportion of their papers which are in the top 5\% of all papers in terms of field-normalized citation impact.
+Universities which were ranked within the top 30 within any year of the time period are considered elite, comprising 53 total institutions.
+We note that the Leiden Rankings are an imperfect proxy for prestige---some institutions which might not be considered prestigious, particularly hospitals, are over-represented due to a high proportion of highly cited publications, whereas others are absent.
+Still, the Leiden Rankings offers an objective measure of ranking global institutions.
+The 53 universities in this top list are manually matched to a GRID ID which allows integration with the Microsoft Academic Graph. 
+
+Using these data, we test whether gender, seniority, or prestige are associated with an increased likelihood of receiving a critical letter. 
+To test this question we use the dataset underlying Fig.~\ref*{fig:paper-features} (matched as for Fig.~\ref*{fig:paper-features}, but within one year of publication), consisting of pairs of papers that received a critical letter matched to others of the same journal which did not.
+Papers which have more than 20 authors are excluded.
+For each journal, and for each of first and last authors, we fit a logistic regression model consisting of a binary variable indicating receipt of a critical letter as the dependent variable, and the gender, seniority, and prestige dummy variables as independent variables. 
+We also include control variables such the journal-normalized and log-scaled 3-year citation impact of the paper, a discretized count of the number of authors (1, 2--5, or 6--20), and the year of publication. 
+Once fit, we compute the average marginal effect of each of the three independent variables in the model, with results shown for first authors in Fig.~\ref*{si:fig:margins_first-auhor}, and for last authors in Fig.~\ref*{si:fig:margins_last-auhor}. 
+Values can be interpreted as the percentage-point increase or decrease that being female, being a senior researcher, or being affiliated with an elite university has on the likelihood of belonging to the subset of papers which received a critical letter, compared to the control group of matched papers.
+
+\subsection*{Paper similarity}
+To represent similarities between citing and cited papers, we use SPECTER2~\cite{Singh2022SciRepEvalAM, cohan-etal-2020-specter}, a neural-network language model capable of generating general-purpose vector representations of scientific documents based on their text content. 
+The model is initialized from the SciBERT language model~\cite{beltagy-etal-2019-scibert} but has an additional pre-training objective incorporating citation data to encode relatedness between citing and cited papers.
+Thanks to this additional training, which considers relationships between documents, SPECTER2 generally outperforms SciBERT, which is trained only on language modeling.
+
+We use SPECTER2 to generate vector representations for papers that were targeted by critical letters and for their citing articles. 
+SPECTER2 is trained using both titles and abstracts, and generally expects both when generating embeddings.
+Microsoft Academic Graph, however, does not index structured paper abstracts (instead, only containing bag-of-words representations), and even for other databases that provide abstracts (such as Dimensions) coverage can be low and biased. 
+Given this, we generate embeddings using only titles, accepting any loss of performance under the assumption that general trends will remain unaffected. 
+
+The similarity between the cited and citing papers is calculated on the basis of the cosine similarity between their SPECTER2 vector representations.
+Rather than report raw similarities, which can be difficult to interpret, our analysis instead relies on relative measures such as the percentile rank of similarity among citations to a paper. 
+
+
+\subsection*{Statistical Analysis}
+We compare percentile ranks (Figs.~\ref*{fig:paper-features} and \ref*{fig:embedding}) with one-sided Kolmogorov--Smirnov tests: one-sample tests against the uniform distribution expected if criticism were unrelated to a metric, and two-sample tests against the matched population.
+Differences in growth between treatment and control populations (Fig.~\ref*{fig:matched-results-impact}) are assessed with two-sided paired $t$-tests on log-transformed growth ratios; because the paired differences are not normally distributed in all cases, we repeat each comparison with the Wilcoxon signed-rank test (Supplementary Note 9, Table~\ref*{si:tab:wilcoxon}).
+Associations with author characteristics are estimated as average marginal effects (AMEs) from logistic regression models (see Author characteristics).
+No adjustment for multiple comparisons was made; consistent with the exploratory aims of the study, p-values are reported to guide interpretation rather than for confirmatory testing.
+
+We complement each test with a Bayes factor, $BF_{01}$, which quantifies the evidence for the null hypothesis of no difference relative to the alternative.
+For the paired comparisons, we use Bayesian paired $t$-tests with a default Cauchy prior; for the percentile ranks, which have no Bayesian counterpart to the Kolmogorov--Smirnov test, we compute one-sided Bayes factors for the mean percentile rank, which can diverge from the Kolmogorov--Smirnov tests when distributions differ in shape but only slightly in mean; and for the AMEs, we approximate Bayes factors by comparing the Bayesian information criterion of models with and without each characteristic~\cite{wagenmakers2007practical}.
+Following convention~\cite{jeffreys1961theory}, we interpret $BF_{01} > 10$ as strong, $BF_{01} > 3$ as moderate, and $BF_{01} > 1$ as anecdotal evidence for the null hypothesis, and $BF_{01} < 1$ as favoring the alternative.
+
+In the main text, we report p-values, together with effect sizes and Bayes factors where they bear on the interpretation of a result.
+The full statistics for every test are reported in the Supplementary Tables referenced alongside each result.
+
+
+%
+%
+% Other Sections
+%
+%
+\subsection*{Software}
+Bibliographic data were collected with SQL queries in Google BigQuery and processed and analyzed in a Snakemake (version 8.16.0) workflow using Python (version 3.11.9) and R (version 4.6.0).
+Matching was performed with the R package MatchIt (version 4.8.1)~\cite{matchit_2011}, average marginal effects were computed with the R package margins (version 0.3.28), and Bayes factors with the R package BayesFactor (version 0.9.12-4.8).
+Title embeddings were computed with SPECTER2~\cite{Singh2022SciRepEvalAM}, and critical letters were annotated with GPT-4o (OpenAI), as described in Supplementary Note 7.
+
+\subsection*{Data Availability}
+% [CHANGED] was: The bibliographic data used in this study are from the Microsoft Academic Graph (MAG); a public snapshot is available in the Zenodo repository under DOI 10.5281/zenodo.6511057~\cite{mag_zenodo}.
+The bibliographic data used in this study are from the Microsoft Academic Graph (MAG); a public snapshot is available in the Zenodo repository~\cite{mag_zenodo}.
+Citation links for Physical Review journals are from the 2020 American Physical Society (APS) citation dataset, which is available under restricted access because it is licensed by the APS for research use and cannot be redistributed; access can be requested from the APS at https://journals.aps.org/datasets. The raw APS data are not redistributed, but data derived from them for this study are included in the repository described below.
+Paper-level characteristics, including altmetric counts of tweets and news mentions (originally from Altmetric.com), are from SciSciNet~\cite{lin_2023_sciscinet}, which is publicly available under DOI 10.6084/m9.figshare.c.6076908.
+University rankings are from the CWTS Leiden Ranking 2023~\cite{van_eck_2023_leiden}, which is publicly available at https://www.leidenranking.com.
+The data generated in this study, including the critical letters and targeted papers identified through bibliometric queries, web scraping, and manual efforts, the manual and LLM-based annotations of critical letters (with paper identifiers), and the intermediary data files needed to replicate the analysis, have been deposited in the Figshare repository under DOI 10.6084/m9.figshare.27970626.v1~\cite{criticism_figshare}.
+The full texts of critical letters are protected by copyright and are not redistributed; they are available from the respective publishers.
+Source data are provided with this paper.
+
+\subsection*{Code Availability }
+Code to perform the analysis is available in a GitHub repository: https://github.com/murrayds/science\_criticism.
+
+
+\clearpage
+\printbibliography
+
+\subsection*{Acknowledgments}
+We thank the wonderful research community at the Center for Complex Network Research at Northeastern University.
+For their helpful comments and feedback we thank Yian Yin, Brian Uzzi, Junming Huang, Alex Gates, Baruch Brazel, Filippo Radicchi, Jisung Yoon, Seokkyun Woo, and Zhouming Wu.
+We are grateful for the insights of our journal referees that helped to improve this manuscript.
+
+\subsection*{Funding statement}
+A.-L.B. discloses support for the research of this work from the National Science Foundation [grant number 2219575]. B.C., D.M., and Y.L. declare no relevant funding.
+
+\subsection*{Author Contributions Statement}
+B.C., D.M., and A.-L.B. designed research;
+B.C., D.M., and Y.L. performed research; 
+B.C. and D.M. analyzed data; 
+and B.C., D.M., and A.-L.B. wrote the paper.
+
+\subsection*{Competing Interests Statement}
+A.-L.B. is co-scientific founder of and is supported by Scipher Medicine, Inc., which applies network medicine strategies to biomarker development and personalized drug selection, and founder of Naring, Inc. which applies data science to health. The remaining authors declare no competing interests.
+
+\clearpage
+\section*{Figure Legends/Captions}
+\section*{Figure Legends/Captions}
+\begin{figure}
+    \centering
+    %\includegraphics[width=0.8\linewidth]{figures/fig1.pdf}
+    \caption{
+    \textbf{Characterizing the papers targeted by critical letters}.
+    Shown are gaussian kernel density estimates of percentile ranks for publications targeted by critical letters across four metrics and journals.
+    Percentile ranks are calculated within each journal, within one of four equal-length periods spanning its publication years, and within a high-level field. 
+    The metrics include (A.1-5) citations received by papers within 3 years of publication;
+    (B.1-5)
+    the diversity of referenced papers, measured using the Simpson's Index of their high-level field categories;
+    (C.1-5)
+    the diversity of citing papers published within five years of the target, calculated using the same index;
+    (D.1-5)
+    a bibliometric indicator measuring the atypicality of a paper’s cited references.
+    For detailed definitions, see \methods. 
+    For each journal and metric, $\mu$ (referred to in-text as $\mu_{rank}$) denotes the average percentile rank of papers targeted by criticism.
+    To examine whether differences in diversity and novelty are mediated by citation impact, a second population of matched papers is included. 
+    Using propensity score matching, we identify for each targeted paper the nearest match from the same journal, in the same high-level field, published within three years of the targeted paper, and within a 5\% tolerance of logarithmic three-year citation impact (see \methods for details).
+    The unit of analysis is the paper. 
+    Filled curves show papers targeted by a critical letter, and dashed curves their matched control papers.
+    No adjustment for multiple comparisons was made.
+    To guide interpretation, we employ two Kolmogorov–Smirnov (KS) tests.
+    (1s KS) A one-sample, one-sided KS test compares the distribution of percentile ranks for targeted papers against a uniform distribution. A low p-value indicates that targeted papers are concentrated among higher ranks, rather than being randomly distributed across the journal.
+    (2s KS) A two-sample, one-sided KS test compares the distribution of percentile ranks for targeted papers against the matched population. A low p-value suggests that targeted papers are concentrated among higher ranks compared to their matched counterparts.
+    P-values for each test are shown in each panel; full test statistics, including sample sizes, effect sizes, and 95\% CIs, are reported in Tables~\ref*{si:table:paper-features-1sKS}-\ref*{si:table:paper-features-2sKS}.
+    Source data are provided as a Source Data file.
+    }
+    \label{fig:paper-features}
+\end{figure}
+
+\begin{figure}
+    \centering
+    %\includegraphics[width=1.0\linewidth]{figures/fig2.pdf}
+    \caption{
+    \textbf{The consequences of criticism.}
+    The x-axis shows, from left to right:
+    (A) Comparison between the log-scaled growth in cumulative citations of papers targeted by a critical letter compared to a matched population of control papers from the same journal, with a similar year of publication, the same field, and with similar citation impact. 
+    Here, change in paper citation impact ($\Delta$Treatment and $\Delta$Control) is defined as the ratio between the citations received by a paper after receipt of a critical letter compared to those received prior; in the case of the control population we use an equivalent time lag.
+    (B-C) Comparison of the change in the average yearly fractional productivity before and after the critical letter for first and last authors of targeted papers compared against a control population of authors sampled from the same journal and with similar prior performance. 
+    (D-E) Comparison of the change in average citation impact for first and last authors of targeted papers compared against the control population.
+    Here, author citation impact refers to the log-scaled ratio in average field-normalized 3-year citation impact of papers published in the five years before and after receipt of the critical letter. 
+    For matching papers, citation tolerance is set to 5\%. 
+    For matching authors, both citation and productivity tolerance is set to 15\%.
+    The unit of analysis is the matched pair: in (A), a paper targeted by a critical letter (treatment) and a matched control paper from the same journal that did not receive one; in (B--E), the first or last author of a targeted paper (treatment) and a matched control author from the same journal whose paper did not receive one.
+    Each matched pair is an independent observation; there are no technical replicates.
+    The number of matched pairs is: (A) Nature $n = 141$, Science $n = 289$, PNAS $n = 291$, PRL $n = 562$, Other APS $n = 309$; (B, D) first authors: Nature $n = 50$, Science $n = 119$, PNAS $n = 79$, PRL $n = 224$, Other APS $n = 145$; (C, E) last authors: Nature $n = 98$, Science $n = 186$, PNAS $n = 201$, PRL $n = 303$, Other APS $n = 209$.
+    Points show the mean difference in log growth between matched treatment and control ($\Delta$Treatment $-$ $\Delta$Control), and error bars show its 95\% confidence interval; that is, data are presented as mean differences $\pm 1.96$ standard errors of the mean.
+    For each comparison we conduct two-sided paired t-tests comparing the treatment and control groups, without adjustment for multiple comparisons, with asterisks indicating the significance level (* $p < 0.05$, ** $p < 0.01$, *** $p < 0.001$); these tests are to guide interpretation, and not for confirmatory analysis.
+    In (A), the difference is significant only for Other APS ($t(308) = 3.04$, $p = 0.003$); all other differences are not statistically significant ($p > 0.05$).
+    Effect sizes and 95\% CIs for each test are reported in Table~\ref*{si:tab:wilcoxon}.
+    Source data are provided as a Source Data file.
+    }
+    \label{fig:matched-results-impact}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    %\includegraphics[width=1.0\linewidth]{figures/fig3.pdf}
+    \caption{
+    \textbf{Critical letters are rarely co-cited despite continued citation to criticized papers.}
+    The x-axis shows time normalized as the number of years since receipt of a critical letter. 
+    The y-axis shows:
+    (A) the mean number of citations received each year by papers that were targeted by a critical letter;
+    (B) the mean proportion of citations to the targeted paper which also cite the critical letter.
+    Data are presented as mean values $\pm 1.96$ standard errors of the mean (95\% confidence intervals). The unit of analysis is the targeted paper; each point is the mean across targeted papers with at least one citation in that year, and the same papers contribute to successive years.
+    The number of papers contributing to each point is reported in Table~\ref*{si:tab:visibility-n}.
+    Author self-citations, defined as any overlap between authors of the cited and citing paper, are excluded in all plots.
+    Replies to critical letters are also excluded.
+    Source data are provided as a Source Data file.
+    }
+    \label{fig:visibility}
+\end{figure}
+
+
+\begin{figure}
+    \centering
+    %\includegraphics[width=1\linewidth]{figures/fig4.pdf}
+    \caption{
+    \textbf{Papers similar to the criticized study co-cite the critical letter}.
+    Shown is the gaussian kernel density estimate of similarity ranks of papers that cite both the study which received a critical letter along with the letter itself.
+    Similarity ranks are computed for each criticized paper and based on the population of all citing papers;
+    for example, a rank of 0.9 indicates that the citing paper is more similar to the criticized study than 90\% of its citations.
+    % [CHANGED] was: For each journal, $\mu$ refers to the average percentile rank of co-citing paper similarity.
+    For each journal, $\mu$ (referred to in-text as $\mu_{rank}$) denotes the average percentile rank of co-citing paper similarity.
+    The unit of analysis is a pair of a targeted paper and citing paper that also cites its critical letter; the number of such pairs is Nature $n = 5{,}211$, Science $n = 8{,}045$, PNAS $n = 2{,}739$, PRL $n = 10{,}231$, Other APS $n = 4{,}489$.
+    We conduct a one-sample Kolmogorov–Smirnov test to guide interpretation. 1s KS refers to a one-sample, one-sided Kolmogorov–Smirnov test comparing the distribution of percentile ranks of co-citing papers against a uniform distribution. 
+    All p-values are below 0.001; no adjustment for multiple comparisons was made.
+    A low p-value (by convention, $p < 0.05$) suggests that co-citing papers are concentrated among the most similar studies. Full test statistics, including sample sizes, effect sizes, and 95\% CIs, are reported in Table~\ref*{si:table:embedding-tests}.
+    Source data are provided as a Source Data file.
+    }
+    \label{fig:embedding}
+\end{figure}
+
+
+
+\end{document}

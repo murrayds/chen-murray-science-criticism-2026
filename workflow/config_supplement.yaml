@@ -1,0 +1,29 @@
+# set the directories below and copy this file as `config.yaml`
+raw_dir: "/Users/d.murray/Documents/science_criticism/data/raw"
+data_dir: "/Users/d.murray/Documents/science_criticism/data/supplement"
+fig_dir: "/Users/d.murray/Documents/science_criticism/results/supplement"
+venues_file: "/Users/d.murray/Documents/science_criticism/workflow/venues_extra.R"
+venues:
+  "JCP": 77047749
+  "Geology": 56162041
+  "EST": 13479253
+  "NEJM": 2764587522
+bigquery:
+  mag_path: "ccnr-success.mag"
+  aps_path: "ccnr-success.aps"
+  sciscinet_path: "ccnr-success.SciSciNet"
+  temp_path: "ccnr-success.dmurray_temp"
+  "scite_path": "ccnr-success.scite_cites"
+processing:
+  minimum_references_for_target: 5
+novelty:
+  iterations: 10
+  start_year: 2000
+  end_year: 2020
+matching:
+  seed: 1234
+  impact_delay: [3]
+  cite_tolerance: [0.05]
+  year_tolerance: [1, 2]
+  productivity_tolerance: [0.1]
+  authorship: ["first", "last"]

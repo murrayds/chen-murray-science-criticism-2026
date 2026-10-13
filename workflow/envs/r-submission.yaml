@@ -1,0 +1,16 @@
+# Environment for the statistics and submission rules (rules/Submission.smk)
+channels:
+  - conda-forge
+dependencies:
+  - r-base=4.3.3
+  - r-tidyverse
+  - r-data.table
+  - r-yaml
+  - r-xtable
+  - r-matchit
+  - r-margins
+  - r-sandwich
+  - r-lmtest
+  - r-broom
+  - r-bayesfactor
+  - r-showtext
